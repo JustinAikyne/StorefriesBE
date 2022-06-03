@@ -1,12 +1,17 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
+
+#Globals:
+#  Function:
+#    Timeout: 160
+
 Parameters:
   StageName:
     Type: String
     Default: Dev
     AllowedValues:
-          - Dev
-          - Prod
+      - Dev
+      - Prod
 
 Resources:
   HelloWorldFunction:
@@ -24,9 +29,27 @@ Resources:
             Method: GET
             Path: /hello
             TimeoutInMillis: 15000
-            PayloadFormatVersion: "2.0"
+            PayloadFormatVersion: "1.0"
             RouteSettings:
               ThrottlingBurstLimit: 600
+  CreateUser:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: "Dev_AK_UM_CreateUser"
+      CodeUri: CreateUser/
+      Handler: index.handler
+      Runtime: nodejs14.x
+      Events:
+        ExplicitApi: # warning: creates a public endpoint
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Auth:
+              Authorizer: "NONE"
+            Method: "POST"
+            Path: /user/createUser
+            TimeoutInMillis: 20000
+            PayloadFormatVersion: "1.0"
 
   HttpApi:
     Type: AWS::Serverless::HttpApi
@@ -39,20 +62,57 @@ Resources:
         Format: $context.requestId
       Auth:
         Authorizers:
-          OAuth2Authorizer:
+          AK_Auth:
             JwtConfiguration:
-              issuer: "https://aikyne.us.auth0.com/"
+              issuer: "https://storefriesqa.us.auth0.com/"
               audience:
-                - https://aikyne-jwt-authorizer
+                - https://storefriesqa-jwt-authorizer
             IdentitySource: "$request.header.Authorization"
-        DefaultAuthorizer: OAuth2Authorizer
+        DefaultAuthorizer: AK_Auth
       DefaultRouteSettings:
         ThrottlingBurstLimit: 200
       RouteSettings:
         "GET /hello":
           ThrottlingBurstLimit: 500 # overridden in HttpApi Event
       StageVariables:
-        mongoDB : "guna:WCPUfJGgOcN7HV20@gunacluster.wrvd0.mongodb.net/SocialMediaPublisher"
+        mongoDB: "storefries:CH8U1ZXGyeILqFWy@storefries.76ocf.mongodb.net/SocialMediaPublisher"
+        markettingMongoDB: "justin:cVMMTQazC5sAijai@socialmediacluster.yym8e.mongodb.net/marketting"
+        authTokenURL: "https://storefriesqa.us.auth0.com/oauth/token"
+        oauth_audience: "https://storefriesqa-jwt-authorizer"
+        oauth_clientId: "VSHQFdqXc33Ts9Z1VKYdJZUuzAwvuO6g"
+        oauth_clientSecret: "c5vxDExYm6QvZMAx_Wz7UejeaRiLqK53de8iDWPlf8ih5VsW5-9SnuLfenrRmkxa"
+        TwitterCallBackURL: "https://test.storefries.com/dashboard/content/newpost/twitter"
+        chargebee_api_key: "test_xM2e2ia5BpizgyKcqISEg9CJScWLwcucU"
+        Hashtag_api_key: "4e1fb16e2bmsh33a34178ff076b3p1f2af1jsn91af61c7f652"
+        LinkedInClientId: "78la5qr9s8e750"
+        Facebook_redirctUrl: "https://test.storefries.com/dashboard/connect/new/instagram"
+        email_validation_check: "no"
+        email_validation_url: "https://api.zerobounce.net/v2/validate?api_key="
+        email_validation_api_key: "afb0b1d9ca5745c48729e512f02c4c4e"
+        lifetime_plan_enable: "lifetime_plan_enable"
+        LinkedInClientSecret: "C2QxygwKAaniVFbv"
+        Rebrandly_key: "1144479f5e4347b68f43375f37d45670"
+        recaptcha_enable: "yes"
+        Twitter_ConsumerKey: "eLD1dQVA2Sz4rN166vyJnF8m8"
+        LinkedInCallbackURL: "https://test.storefries.com/dashboard/connect/new/linkedin?"
+        Google_redirctUrl: "https://test.storefries.com/dashboard/connect/new/youtube"
+        Facebook_ClientKey: "62856eebf9511cf012f0d0be3cdec2db"
+        Manage_ProfilePage: "https://test.storefries.com/dashboard/connect/new/gmb"
+        Facebook_ClientId: "125112632754235"
+        chargebee_site: "storefries-test"
+        sender_email: "dev@aikyne.com"
+        BitlyClientSecret: "db111d870bd912e6483cc99f69706f46971f8b5b"
+        notification_email: "dev@aikyne.com"
+        trial_enable: yes
+        Google_ClientId: "781834412445-ggdcsq1tuvsvsg99uh3pg6iqc6jqi4ug.apps.googleusercontent.com"
+        confirm_endPoint: "https://e9a45i8ip3.execute-api.ap-south-1.amazonaws.com/Dev/aikyne/"
+        BitlyRedirectURL: "https://test.storefries.com/bitlysuccess"
+        s3_bucket_name: "aikyne-mediafiles"
+        site_url: "https://test.storefries.com"
+        aws_region: "ap-south-1"
+        Google_ClientSecret: "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"
+        BitlyClientId: "68e34eace85477dfb10db34f83b69e0148e105d2"
+        Twitter_ConsumerSecret: "qtO5wIc479drT3YqmiNYzRSTsc6hrpVR7paj8ZgMAAoDdSW50H"
       FailOnWarnings: true
 
   AccessLogs:
@@ -62,7 +122,7 @@ Outputs:
   HttpApiUrl:
     Description: URL of your API endpoint
     Value:
-      Fn::Sub: 'https://${HttpApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}/${StageName}/'
+      Fn::Sub: "https://${HttpApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}/${StageName}/"
   HttpApiId:
     Description: Api id of HttpApi
     Value:
