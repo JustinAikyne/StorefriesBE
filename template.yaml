@@ -36,9 +36,12 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: "Dev_AK_UM_CreateUser"
+      Timeout: 30
       CodeUri: CreateUser/
       Handler: index.handler
       Runtime: nodejs14.x
+      Policies:
+        - AmazonSESFullAccess
       Events:
         ExplicitApi: # warning: creates a public endpoint
           Type: HttpApi
