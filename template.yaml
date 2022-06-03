@@ -37,6 +37,7 @@ Resources:
     Properties:
       FunctionName: "Dev_AK_UM_CreateUser"
       Timeout: 30
+      Memory: 10240
       CodeUri: CreateUser/
       Handler: index.handler
       Runtime: nodejs14.x
