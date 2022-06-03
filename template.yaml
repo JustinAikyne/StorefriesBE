@@ -37,7 +37,7 @@ Resources:
     Properties:
       FunctionName: "Dev_AK_UM_CreateUser"
       Timeout: 30
-      Memory: 10240
+      MemorySize: 10240
       CodeUri: CreateUser/
       Handler: index.handler
       Runtime: nodejs14.x
@@ -52,7 +52,7 @@ Resources:
               Authorizer: "NONE"
             Method: "POST"
             Path: /user/createUser
-            TimeoutInMillis: 20000
+            TimeoutInMillis: 15000
             PayloadFormatVersion: "1.0"
 
   HttpApi:
