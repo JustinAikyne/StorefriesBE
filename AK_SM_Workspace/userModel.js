@@ -1,14 +1,12 @@
 var mongoose = require('mongoose');
-var Schema = mongoose.Schema,
-    ObjectId = Schema.ObjectId;
 
-var userSchema = new Schema({
+var userSchema = new mongoose.Schema({
     userId: String,
-    firstName: String,
+    firstName: String, 
     lastName: String,
     email: String,
     password: String,
-    //phone: String,
+    phone: String,
     status: String,
     activationString: String,
     location: {
@@ -16,9 +14,8 @@ var userSchema = new Schema({
         lat: Number
     },
     formatted_address: String,
-    tempPlan: String,
-    role: String,
-    features: {
+    suspended_status: { type: String, default: 'inactive' },
+    features: { 
         totalSocialChannel: { type: Number, default: 0 },
         totalUploadSize: { type: Number, default: 0 },
         totalSchedulePostCount: { type: Number, default: 0 },
@@ -36,22 +33,7 @@ var userSchema = new Schema({
         is_CanvaAllowed: { type: Boolean, default: false },
         is_EngagementViewAllowed: { type: Boolean, default: false },
         is_DashboardViewAllowed: { type: Boolean, default: false },
-    },
-    workspaceIds: [],
-    ipInfo: {
-        ip_address: String,
-        city: String,
-        country: String,
-        countryCode: String,
-        currency: String,
-        lat: Number,
-        lon: Number,
-        mobile: Boolean,
-        regionName: String,
-        timezone: String,
-        zip: String
-    },
-    suspended_status: { type: String, default: 'inactive' }
+    }
 });
 
 userSchema.set('timestamps', true)

@@ -54,7 +54,74 @@ Resources:
             Path: /user/createUser
             TimeoutInMillis: 15000
             PayloadFormatVersion: "1.0"
-
+  AuthenticateUser:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: "Dev_AK_UM_AuthenticateUser"
+      Timeout: 30
+      MemorySize: 10240
+      CodeUri: AuthenticateUser/
+      Handler: index.handler
+      Runtime: nodejs14.x
+      Policies:
+        - AmazonSESFullAccess
+      Events:
+        ExplicitApi: # warning: creates a public endpoint
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Auth:
+              Authorizer: "NONE"
+            Method: "POST"
+            Path: /user/authenticateUser
+            TimeoutInMillis: 15000
+            PayloadFormatVersion: "1.0"
+  Workspace:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: "Dev_AK_SM_Workspace"
+      Timeout: 30
+      MemorySize: 10240
+      CodeUri: AK_SM_Workspace/
+      Handler: index.handler
+      Runtime: nodejs14.x
+      Events:
+        CreateWorkspace: # warning: creates a public endpoint
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Method: "POST"
+            Path: /workspace/create
+            TimeoutInMillis: 15000
+            PayloadFormatVersion: "1.0"
+        GetWorkspace:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Method: "GET"
+            Path: /workspace/retrieve
+            TimeoutInMillis: 15000
+            PayloadFormatVersion: "1.0"
+  UpdateUserProfile:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: "Dev_AK_UM_UpdateUserProfile"
+      Timeout: 30
+      MemorySize: 10240
+      CodeUri: AK_UM_UpdateUserProfile/
+      Handler: index.handler
+      Runtime: nodejs14.x
+      Policies:
+        - AmazonS3FullAccess
+      Events:
+        ExplicitApi: # warning: creates a public endpoint
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Method: "POST"
+            Path: /user/updateUser
+            TimeoutInMillis: 15000
+            PayloadFormatVersion: "1.0"
   HttpApi:
     Type: AWS::Serverless::HttpApi
     Properties:
@@ -79,10 +146,11 @@ Resources:
         "GET /hello":
           ThrottlingBurstLimit: 500 # overridden in HttpApi Event
       StageVariables:
-        mongoDB: "storefries:CH8U1ZXGyeILqFWy@storefries.76ocf.mongodb.net/SocialMediaPublisher"
+        mongoDB: "StorefriesQA1:vfRPJcXLcQyWEt2r@storefriesqa1.qpgagus.mongodb.net/Storefriesqa1"
         markettingMongoDB: "justin:cVMMTQazC5sAijai@socialmediacluster.yym8e.mongodb.net/marketting"
         authTokenURL: "https://storefriesqa.us.auth0.com/oauth/token"
         oauth_audience: "https://storefriesqa-jwt-authorizer"
+        oauth_issuer: "https://storefriesqa.us.auth0.com/"
         oauth_clientId: "VSHQFdqXc33Ts9Z1VKYdJZUuzAwvuO6g"
         oauth_clientSecret: "c5vxDExYm6QvZMAx_Wz7UejeaRiLqK53de8iDWPlf8ih5VsW5-9SnuLfenrRmkxa"
         TwitterCallBackURL: "https://test.storefries.com/dashboard/content/newpost/twitter"
@@ -96,6 +164,7 @@ Resources:
         lifetime_plan_enable: "lifetime_plan_enable"
         LinkedInClientSecret: "C2QxygwKAaniVFbv"
         Rebrandly_key: "1144479f5e4347b68f43375f37d45670"
+        locationAppId: "9e24af5e57msh04451f988199844p1b67fejsn7e1824269b53"
         recaptcha_enable: "yes"
         Twitter_ConsumerKey: "eLD1dQVA2Sz4rN166vyJnF8m8"
         LinkedInCallbackURL: "https://test.storefries.com/dashboard/connect/new/linkedin?"

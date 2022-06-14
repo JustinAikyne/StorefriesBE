@@ -1,7 +1,9 @@
 var mongoose = require('mongoose');
+var ObjectId = require('mongoose').Types.ObjectId;
 var bcrypt = require('bcryptjs');
 var aws = require("aws-sdk");
 var userModel = require('./userModel.js');
+var workspaceModel = require('./workspaceModel.js');
 var planModel = require('./plansModel.js');
 var deletedUsers = require('./deletedUsers.js');
 var subscriptionModel = require('./subscriptionModel.js');
@@ -81,7 +83,9 @@ exports.handler = (event, context, callback) => {
                     userType: Joi.string().optional(),
                     phone: Joi.string().optional(),
                     location: Joi.object().optional(),
-                    subscription: Joi.object().optional()
+                    subscription: Joi.object().optional(),
+                    workspaceName: Joi.string().required(),
+                    workspaceLogo: Joi.string().optional()
                 })
 
                 try {
@@ -89,7 +93,7 @@ exports.handler = (event, context, callback) => {
                 } catch (err) {
                     if (err.details && err.details[0] && err.details[0].message) {
                         done('422', {
-                            message: err.details[0].message
+                            message: err.details[0].message.replace(/\r?\"|\r/g, "")
                         });
                     } else {
                         done('400', {
@@ -122,15 +126,14 @@ exports.handler = (event, context, callback) => {
                     console.log("validationUrl....", validationUrl)
                     try {
                         let email_validation = await axios.get(validationUrl)
-
                         console.log("email_validation", JSON.stringify(email_validation.data));
-
-                        if (email_validation && email_validation.data && email_validation.data.status && email_validation.data.status !== 'valid') {
-
-                            done('422', {
-                                message: "Enter Valid Email"
-                            });
-                            return
+                        if(email_validation.data && email_validation.data.smtp_provider && email_validation.data.smtp_provider !== "google"){
+                            if (email_validation && email_validation.data && email_validation.data.status && email_validation.data.status !== 'valid') {    
+                                done('422', {
+                                    message: "Enter Valid Email"
+                                });
+                                return
+                            }
                         }
                     } catch (error) {
                         console.log("Email validation api not working")
@@ -141,7 +144,15 @@ exports.handler = (event, context, callback) => {
                 let deletedUserCount = await deletedUsers.countDocuments(mdQuery)
                 console.log("deletedUserCount", deletedUserCount)
                 if (deletedUserCount == 0) {
-                    let userCount = await userModel.countDocuments(mdQuery)
+                    let userCount = await userModel.countDocuments(mdQuery);
+                    let workspaceCount = await workspaceModel.countDocuments({'workspaceName': { $regex: new RegExp("^" + body.workspaceName, "i")}});
+                    if(workspaceCount > 0){
+                        done('409', {
+                            status: false,
+                            message: "Workspace name already exist, try different name."
+                        });
+                        return
+                    }
                     if (userCount === 0) {
                         let subscriptionCount = await subscriptionModel.countDocuments(mdQuery)
                         if (subscriptionCount === 0) {
@@ -166,7 +177,7 @@ exports.handler = (event, context, callback) => {
                             if (body.formatted_address) {
                                 user.formatted_address = body.formatted_address;
                             }
-                            try {
+                            //try {
 
                                 let customer = {}
                                 let subscription = {}
@@ -222,6 +233,8 @@ exports.handler = (event, context, callback) => {
                                             console.log("err.....ipinfo login.......",err)
                                         })
                                     }
+
+                                    console.log("planId...........",planId)
 
                                     var planData = await planModel.findOne({ 'planId': planId })
                                     console.log("planData.........", JSON.stringify(planData))
@@ -342,8 +355,34 @@ exports.handler = (event, context, callback) => {
                                     //}
                                 }
 
-                                user.save(function (err, docs) {
+
+                                let workspace = new workspaceModel();
+
+                                workspace.workspaceName = body.workspaceName.toLowerCase();
+                                workspace.workspaceDisplayName = body.workspaceName;
+                                workspace.superAdmin = body.email.toLowerCase();
+                                if(body.workspaceLogo){
+                                    workspace.workspaceLogo = body.workspaceLogo;
+                                }
+                                let workspaceData = await workspace.save();
+
+                                user.workspaceIds.push(workspaceData._id);
+                                user.role = "superAdmin";
+
+                                user.save(async (err, docs) =>{
+                                    let members = [];
+                                    members.push({
+                                        userId: docs._id,
+                                        role: "superAdmin",
+                                        email: docs.email,
+                                        status: "added"
+                                    })
+                                    console.log("workspaceData........",JSON.stringify(workspaceData));
+                                    console.log("members........",JSON.stringify(members));
+                                    let updateWorkspace = await workspaceModel.updateOne({_id: new ObjectId(workspaceData._id)},{$set: {users : members}});
                                     // send email
+
+                                    console.log("updateWorkspace",JSON.stringify(updateWorkspace));
 
                                     //const emailLink = `https://e9a45i8ip3.execute-api.ap-south-1.amazonaws.com/Dev/aikyne/confirmEmail?email=${body.email}&actCode=${actString}`;
                                     const emailLink = `${confirm_endPoint}confirmEmail?email=${body.email}&actCode=${actString}`;
@@ -366,35 +405,46 @@ exports.handler = (event, context, callback) => {
                                         },
                                         Source: sender_email,
                                     };
+                                    done('201', {
+                                        status: 'User inserted',
+                                        data: {
+                                            id: docs.id,
+                                            firstName: docs.firstName,
+                                            lastName: docs.lastName,
+                                            email: body.email,
+                                            subscriptionHostedData: subscriptionData
+                                            //res: res.data
+                                        }
+                                    })
 
-                                    var sendPromise = new aws.SES({ apiVersion: '2010-12-01' }).sendEmail(params).promise();
-                                    sendPromise.then(
-                                        function (data) {
-                                            done('201', {
-                                                status: 'User inserted',
-                                                data: {
-                                                    id: docs.id,
-                                                    firstName: docs.firstName,
-                                                    lastName: docs.lastName,
-                                                    email: body.email,
-                                                    subscriptionHostedData: subscriptionData
-                                                    //res: res.data
-                                                }
-                                            })
-                                        }).catch(
-                                            function (err) {
-                                                console.error(err, err.stack);
-                                                done('422', {
-                                                    status: 'Error in sending mail'
-                                                });
-                                            });
+                                    // var sendPromise = new aws.SES({ apiVersion: '2010-12-01' }).sendEmail(params).promise();
+                                    // sendPromise.then(
+                                    //     function (data) {
+                                    //         done('201', {
+                                    //             status: 'User inserted',
+                                    //             data: {
+                                    //                 id: docs.id,
+                                    //                 firstName: docs.firstName,
+                                    //                 lastName: docs.lastName,
+                                    //                 email: body.email,
+                                    //                 subscriptionHostedData: subscriptionData
+                                    //                 //res: res.data
+                                    //             }
+                                    //         })
+                                    //     }).catch(
+                                    //         function (err) {
+                                    //             console.error(err, err.stack);
+                                    //             done('422', {
+                                    //                 status: 'Error in sending mail'
+                                    //             });
+                                    //         });
                                 });
 
-                            } catch (error) {
+                            /* } catch (error) {
                                 done('401', {
                                     message: error.message
                                 });
-                            }
+                            } */
                         } else {
                             done('409', {
                                 message: 'User Account already Subscribed'
