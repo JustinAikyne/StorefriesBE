@@ -79,7 +79,7 @@ Resources:
   Workspace:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: "Dev_AK_SM_Workspace"
+      FunctionName: "Dev_AK_UM_Workspace"
       Timeout: 30
       MemorySize: 10240
       CodeUri: AK_SM_Workspace/
@@ -102,26 +102,7 @@ Resources:
             Path: /workspace/retrieve
             TimeoutInMillis: 15000
             PayloadFormatVersion: "1.0"
-  UpdateUserProfile:
-    Type: AWS::Serverless::Function
-    Properties:
-      FunctionName: "Dev_AK_UM_UpdateUserProfile"
-      Timeout: 30
-      MemorySize: 10240
-      CodeUri: AK_UM_UpdateUserProfile/
-      Handler: index.handler
-      Runtime: nodejs14.x
-      Policies:
-        - AmazonS3FullAccess
-      Events:
-        ExplicitApi: # warning: creates a public endpoint
-          Type: HttpApi
-          Properties:
-            ApiId: !Ref HttpApi
-            Method: "POST"
-            Path: /user/updateUser
-            TimeoutInMillis: 15000
-            PayloadFormatVersion: "1.0"
+
   HttpApi:
     Type: AWS::Serverless::HttpApi
     Properties:
