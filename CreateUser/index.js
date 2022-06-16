@@ -360,6 +360,7 @@ exports.handler = (event, context, callback) => {
 
                                 workspace.workspaceName = body.workspaceName.toLowerCase();
                                 workspace.workspaceDisplayName = body.workspaceName;
+                                workspace.workspaceTimezone = body.workspaceTimezone;
                                 workspace.superAdmin = body.email.toLowerCase();
                                 if(body.workspaceLogo){
                                     workspace.workspaceLogo = body.workspaceLogo;
@@ -372,7 +373,7 @@ exports.handler = (event, context, callback) => {
                                 user.save(async (err, docs) =>{
                                     let members = [];
                                     members.push({
-                                        userId: docs._id,
+                                        userId: new ObjectId(docs._id),
                                         role: "superAdmin",
                                         email: docs.email,
                                         status: "added"

@@ -80,7 +80,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: "Dev_AK_UM_Workspace"
-      Timeout: 30
+      Timeout: 80
       MemorySize: 10240
       CodeUri: AK_SM_Workspace/
       Handler: index.handler
@@ -100,6 +100,22 @@ Resources:
             ApiId: !Ref HttpApi
             Method: "GET"
             Path: /workspace/retrieve
+            TimeoutInMillis: 15000
+            PayloadFormatVersion: "1.0"
+        EditWorkspace:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Method: "PUT"
+            Path: /workspace/edit/{workspaceId}
+            TimeoutInMillis: 15000
+            PayloadFormatVersion: "1.0"
+        DeleteWorkspace:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Method: "DELETE"
+            Path: /workspace/delete/{workspaceId}
             TimeoutInMillis: 15000
             PayloadFormatVersion: "1.0"
 

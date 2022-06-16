@@ -4,15 +4,18 @@ var userData = new mongoose.Schema({
     userId: String,
     role: String,
     email: String,
+    name: String,
     status: String
 });
 
 var workspaceSchema = new mongoose.Schema({
     workspaceName: { type: String, lowercase: true },
     workspaceDisplayName: String,
+    workspaceTimezone: String,
     superAdmin: String,
     workspaceLogo: String,
     users: [userData],
+    default: { type: Boolean, default: true },
     status: { type: String, default: 'active' }
 });
 
