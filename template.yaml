@@ -79,10 +79,10 @@ Resources:
   Workspace:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: "Dev_AK_UM_Workspace"
+      FunctionName: "Dev_AK_WM_Workspace"
       Timeout: 80
       MemorySize: 10240
-      CodeUri: AK_SM_Workspace/
+      CodeUri: AK_WM_Workspace/
       Handler: index.handler
       Runtime: nodejs14.x
       Events:
@@ -143,7 +143,8 @@ Resources:
         "GET /hello":
           ThrottlingBurstLimit: 500 # overridden in HttpApi Event
       StageVariables:
-        mongoDB: "StorefriesQA1:vfRPJcXLcQyWEt2r@storefriesqa1.qpgagus.mongodb.net/Storefriesqa1"
+        # mongoDB: "StorefriesQA1:vfRPJcXLcQyWEt2r@storefriesqa1.qpgagus.mongodb.net/Storefriesqa1"
+        mongoDB: "storefries:CH8U1ZXGyeILqFWy@storefries.76ocf.mongodb.net/SocialMediaPublisher"
         markettingMongoDB: "justin:cVMMTQazC5sAijai@socialmediacluster.yym8e.mongodb.net/marketting"
         authTokenURL: "https://storefriesqa.us.auth0.com/oauth/token"
         oauth_audience: "https://storefriesqa-jwt-authorizer"
@@ -155,6 +156,7 @@ Resources:
         Hashtag_api_key: "4e1fb16e2bmsh33a34178ff076b3p1f2af1jsn91af61c7f652"
         LinkedInClientId: "78la5qr9s8e750"
         Facebook_redirctUrl: "https://test.storefries.com/dashboard/connect/new/instagram"
+        Fb_redirectUrl: "https://test.storefries.com/dashboard/connect/new/facebook"
         email_validation_check: "no"
         email_validation_url: "https://api.zerobounce.net/v2/validate?api_key="
         email_validation_api_key: "afb0b1d9ca5745c48729e512f02c4c4e"
