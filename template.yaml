@@ -76,6 +76,244 @@ Resources:
             Path: /user/authenticateUser
             TimeoutInMillis: 15000
             PayloadFormatVersion: "1.0"
+  GoogleAccountsSaveAccessToken:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: "Dev_AK_SM_GoogleAccountsSaveAccessToken"
+      Timeout: 30
+      MemorySize: 10240
+      CodeUri: AK_SM_GoogleAccountsSaveAccessToken/
+      Handler: index.handler
+      Runtime: nodejs14.x
+      Policies:
+        - AmazonSESFullAccess
+      Events:
+        ExplicitApi: # warning: creates a public endpoint
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Auth:
+              Authorizer: "NONE"
+            Method: "POST"
+            Path: /sm/googleAccSaveAccessToken
+            TimeoutInMillis: 15000
+            PayloadFormatVersion: "1.0"
+  FacebookConnect:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: "Dev_AK_SM_FacebookConnect"
+      Timeout: 30
+      MemorySize: 10240
+      CodeUri: AK_SM_FacebookConnect/
+      Handler: index.handler
+      Runtime: nodejs14.x
+      Policies:
+        - AmazonSESFullAccess
+      Events:
+        ExplicitApi: # warning: creates a public endpoint
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Auth:
+              Authorizer: "NONE"
+            Method: "GET"
+            Path: /manageSM/fb/facebookConnect
+            TimeoutInMillis: 15000
+            PayloadFormatVersion: "1.0"
+  SaveFacebookToken:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: "Dev_AK_SM_SaveFacebookToken"
+      Timeout: 30
+      MemorySize: 10240
+      CodeUri: AK_SM_SaveFacebookToken/
+      Handler: index.handler
+      Runtime: nodejs14.x
+      Policies:
+        - AmazonSESFullAccess
+      Events:
+        ExplicitApi: # warning: creates a public endpoint
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Auth:
+              Authorizer: "NONE"
+            Method: "POST"
+            Path: /manageSM/fb/registerUser
+            TimeoutInMillis: 15000
+            PayloadFormatVersion: "1.0"
+  SaveUserPages:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: "Dev_AK_SM_saveUserPages"
+      Timeout: 30
+      MemorySize: 10240
+      CodeUri: AK_SM_saveUserPages/
+      Handler: index.handler
+      Runtime: nodejs14.x
+      Policies:
+        - AmazonSESFullAccess
+      Events:
+        ExplicitApi: # warning: creates a public endpoint
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Auth:
+              Authorizer: "NONE"
+            Method: "POST"
+            Path: /manageSM/fb/saveUserPages
+            TimeoutInMillis: 15000
+            PayloadFormatVersion: "1.0"
+  LinkedInStep1:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: "Dev_AK_SM_LinkedInStep1"
+      Timeout: 30
+      MemorySize: 10240
+      CodeUri: AK_SM_LinkedInStep1/
+      Handler: index.handler
+      Runtime: nodejs14.x
+      Policies:
+        - AmazonSESFullAccess
+      Events:
+        ExplicitApi: # warning: creates a public endpoint
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Auth:
+              Authorizer: "NONE"
+            Method: "GET"
+            Path: /manageSM/lkin/getRedirectUrl
+            TimeoutInMillis: 15000
+            PayloadFormatVersion: "1.0"
+  LinkedInStep2:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: "Dev_AK_SM_LinkedInStep2"
+      Timeout: 30
+      MemorySize: 10240
+      CodeUri: AK_SM_LinkedInStep2/
+      Handler: index.handler
+      Runtime: nodejs14.x
+      Policies:
+        - AmazonSESFullAccess
+      Events:
+        ExplicitApi: # warning: creates a public endpoint
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Auth:
+              Authorizer: "NONE"
+            Method: "POST"
+            Path: /manageSM/lkin/retreiveLinkedInProfile
+            TimeoutInMillis: 15000
+            PayloadFormatVersion: "1.0"
+  TwitterStep2:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: "Dev_AK_SM_Twitter_Step2"
+      Timeout: 30
+      MemorySize: 10240
+      CodeUri: AK_SM_Twitter_Step2/
+      Handler: index.handler
+      Runtime: nodejs14.x
+      Policies:
+        - AmazonSESFullAccess
+      Events:
+        ExplicitApi: # warning: creates a public endpoint
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Auth:
+              Authorizer: "NONE"
+            Method: "POST"
+            Path: /manageSM/twr/twitterAccessToken
+            TimeoutInMillis: 15000
+            PayloadFormatVersion: "1.0"
+  SaveLinkedInToken:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: "Dev_AK_SM_SaveLinkedInToken"
+      Timeout: 30
+      MemorySize: 10240
+      CodeUri: AK_SM_SaveLinkedInToken/
+      Handler: index.handler
+      Runtime: nodejs14.x
+      Policies:
+        - AmazonSESFullAccess
+      Events:
+        ExplicitApi: # warning: creates a public endpoint
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Auth:
+              Authorizer: "NONE"
+            Method: "POST"
+            Path: /manageSM/lkin/saveUserToken
+            TimeoutInMillis: 15000
+            PayloadFormatVersion: "1.0"
+  Dashboard:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: "Dev_AK_SM_Dashboard"
+      Timeout: 30
+      MemorySize: 10240
+      CodeUri: AK_SM_Dashboard/
+      Handler: index.handler
+      Runtime: nodejs14.x
+      Events:
+        ExplicitApi: # warning: creates a public endpoint
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Auth:
+              Authorizer: "NONE"
+            Method: "POST"
+            Path: /manageSM/dashboard
+            TimeoutInMillis: 15000
+            PayloadFormatVersion: "1.0"                        
+  Workspace:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: "Dev_AK_WM_Workspace"
+      Timeout: 80
+      MemorySize: 10240
+      CodeUri: AK_WM_Workspace/
+      Handler: index.handler
+      Runtime: nodejs14.x
+      Events:
+        CreateWorkspace: # warning: creates a public endpoint
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Method: "POST"
+            Path: /workspace/create
+            TimeoutInMillis: 15000
+            PayloadFormatVersion: "1.0"
+        GetWorkspace:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Method: "GET"
+            Path: /workspace/retrieve
+            TimeoutInMillis: 15000
+            PayloadFormatVersion: "1.0"
+        EditWorkspace:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Method: "PUT"
+            Path: /workspace/edit/{workspaceId}
+            TimeoutInMillis: 15000
+            PayloadFormatVersion: "1.0"
+        DeleteWorkspace:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Method: "DELETE"
+            Path: /workspace/delete/{workspaceId}
+            TimeoutInMillis: 15000
+            PayloadFormatVersion: "1.0"
 
   HttpApi:
     Type: AWS::Serverless::HttpApi
@@ -101,8 +339,8 @@ Resources:
         "GET /hello":
           ThrottlingBurstLimit: 500 # overridden in HttpApi Event
       StageVariables:
-        # mongoDB: "StorefriesQA1:vfRPJcXLcQyWEt2r@storefriesqa1.qpgagus.mongodb.net/Storefriesqa1"
-        mongoDB: "storefries:CH8U1ZXGyeILqFWy@storefries.76ocf.mongodb.net/SocialMediaPublisher"
+        mongoDB: "StorefriesQA1:vfRPJcXLcQyWEt2r@storefriesqa1.qpgagus.mongodb.net/Storefriesqa1"
+        # mongoDB: "storefries:CH8U1ZXGyeILqFWy@storefries.76ocf.mongodb.net/SocialMediaPublisher"
         markettingMongoDB: "justin:cVMMTQazC5sAijai@socialmediacluster.yym8e.mongodb.net/marketting"
         authTokenURL: "https://storefriesqa.us.auth0.com/oauth/token"
         oauth_audience: "https://storefriesqa-jwt-authorizer"

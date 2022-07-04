@@ -3,8 +3,6 @@ var bcrypt = require('bcryptjs');
 var axios = require('axios')
 //const Joi = require("joi");
 var subscriptionModel = require('./subscriptionModel.js');
-var ipInfo = require("ip-info-finder");
-
 var userModel = require('./userModel.js');
 var onBoarding = require('./onBoarding.js');
 var aws = require("aws-sdk");
@@ -22,7 +20,6 @@ exports.handler = (event, context, callback) => {
     });
 
     var connectorMongodb = mongoose.connect(`mongodb+srv://${event.stageVariables['mongoDB']}?retryWrites=true&w=majority`, { useNewUrlParser: true, useUnifiedTopology: true });
-    //var connectorMongodb = mongoose.connect('mongodb+srv://storefries:OEo4ydiRIYRP7Pdk@storefries.76ocf.mongodb.net/SocialMediaPublisher', { useNewUrlParser: true, useUnifiedTopology: true });
     aws.config.update({ region: event.stageVariables['aws_region'] });
     const notification_email = event.stageVariables['notification_email'];
 

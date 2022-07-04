@@ -1,20 +1,15 @@
 var mongoose = require('mongoose');
-var ObjectId = require('mongoose').Types.ObjectId;
 var bcrypt = require('bcryptjs');
 var aws = require("aws-sdk");
 var userModel = require('./userModel.js');
-var workspaceModel = require('./workspaceModel.js');
 var planModel = require('./plansModel.js');
 var deletedUsers = require('./deletedUsers.js');
 var subscriptionModel = require('./subscriptionModel.js');
 var chargebee = require("chargebee");
 var axios = require('axios')
 const Joi = require('joi');
-var ipInfo = require("ip-info-finder");
 
-
-// Set the region 
-
+// Set the region
 exports.handler = (event, context, callback) => {
 
     console.log('Received event:', JSON.stringify(event));
@@ -35,7 +30,6 @@ exports.handler = (event, context, callback) => {
             'Access-Control-Allow-Origin': '*'
         },
     });
-
 
     const getRandomString = (length) => {
         var randomChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -62,10 +56,6 @@ exports.handler = (event, context, callback) => {
     //const lifetime_plan_enable = event.stageVariables['lifetime_plan_enable'];
     //const lifetime_plan_enable = "no";
 
-    // aws.config.update({ region: "ap-south-1" });
-    // const sender_email = "dev@aikyne.com";
-    // const confirm_endPoint = "https://e9a45i8ip3.execute-api.ap-south-1.amazonaws.com/Dev/aikyne/";
-
     switch (event.httpMethod) {
         case 'POST':
             console.log('POST Called')
@@ -83,9 +73,9 @@ exports.handler = (event, context, callback) => {
                     userType: Joi.string().optional(),
                     phone: Joi.string().optional(),
                     location: Joi.object().optional(),
-                    subscription: Joi.object().optional(),
-                    workspaceName: Joi.string().required(),
-                    workspaceLogo: Joi.string().optional()
+                    // subscription: Joi.object().optional(),
+                    // workspaceName: Joi.string().required(),
+                    // workspaceLogo: Joi.string().optional()
                 })
 
                 try {
@@ -145,14 +135,7 @@ exports.handler = (event, context, callback) => {
                 console.log("deletedUserCount", deletedUserCount)
                 if (deletedUserCount == 0) {
                     let userCount = await userModel.countDocuments(mdQuery);
-                    let workspaceCount = await workspaceModel.countDocuments({'workspaceName': { $regex: new RegExp("^" + body.workspaceName, "i")}});
-                    if(workspaceCount > 0){
-                        done('409', {
-                            status: false,
-                            message: "Workspace name already exist, try different name."
-                        });
-                        return
-                    }
+                    
                     if (userCount === 0) {
                         let subscriptionCount = await subscriptionModel.countDocuments(mdQuery)
                         if (subscriptionCount === 0) {
@@ -177,7 +160,7 @@ exports.handler = (event, context, callback) => {
                             if (body.formatted_address) {
                                 user.formatted_address = body.formatted_address;
                             }
-                            //try {
+                            try {
 
                                 let customer = {}
                                 let subscription = {}
@@ -355,35 +338,7 @@ exports.handler = (event, context, callback) => {
                                     //}
                                 }
 
-
-                                let workspace = new workspaceModel();
-
-                                workspace.workspaceName = body.workspaceName.toLowerCase();
-                                workspace.workspaceDisplayName = body.workspaceName;
-                                workspace.workspaceTimezone = body.workspaceTimezone;
-                                workspace.superAdmin = body.email.toLowerCase();
-                                if(body.workspaceLogo){
-                                    workspace.workspaceLogo = body.workspaceLogo;
-                                }
-                                let workspaceData = await workspace.save();
-
-                                user.workspaceIds.push(workspaceData._id);
-                                user.role = "superAdmin";
-
                                 user.save(async (err, docs) =>{
-                                    let members = [];
-                                    members.push({
-                                        userId: new ObjectId(docs._id),
-                                        role: "superAdmin",
-                                        email: docs.email,
-                                        status: "added"
-                                    })
-                                    console.log("workspaceData........",JSON.stringify(workspaceData));
-                                    console.log("members........",JSON.stringify(members));
-                                    let updateWorkspace = await workspaceModel.updateOne({_id: new ObjectId(workspaceData._id)},{$set: {users : members}});
-                                    // send email
-
-                                    console.log("updateWorkspace",JSON.stringify(updateWorkspace));
 
                                     //const emailLink = `https://e9a45i8ip3.execute-api.ap-south-1.amazonaws.com/Dev/aikyne/confirmEmail?email=${body.email}&actCode=${actString}`;
                                     const emailLink = `${confirm_endPoint}confirmEmail?email=${body.email}&actCode=${actString}`;
@@ -406,7 +361,7 @@ exports.handler = (event, context, callback) => {
                                         },
                                         Source: sender_email,
                                     };
-                                    done('201', {
+                                    /* done('201', {
                                         status: 'User inserted',
                                         data: {
                                             id: docs.id,
@@ -416,36 +371,36 @@ exports.handler = (event, context, callback) => {
                                             subscriptionHostedData: subscriptionData
                                             //res: res.data
                                         }
-                                    })
+                                    }) */
 
-                                    // var sendPromise = new aws.SES({ apiVersion: '2010-12-01' }).sendEmail(params).promise();
-                                    // sendPromise.then(
-                                    //     function (data) {
-                                    //         done('201', {
-                                    //             status: 'User inserted',
-                                    //             data: {
-                                    //                 id: docs.id,
-                                    //                 firstName: docs.firstName,
-                                    //                 lastName: docs.lastName,
-                                    //                 email: body.email,
-                                    //                 subscriptionHostedData: subscriptionData
-                                    //                 //res: res.data
-                                    //             }
-                                    //         })
-                                    //     }).catch(
-                                    //         function (err) {
-                                    //             console.error(err, err.stack);
-                                    //             done('422', {
-                                    //                 status: 'Error in sending mail'
-                                    //             });
-                                    //         });
+                                    var sendPromise = new aws.SES({ apiVersion: '2010-12-01' }).sendEmail(params).promise();
+                                    sendPromise.then(
+                                        function (data) {
+                                            done('201', {
+                                                status: 'User inserted',
+                                                data: {
+                                                    id: docs.id,
+                                                    firstName: docs.firstName,
+                                                    lastName: docs.lastName,
+                                                    email: body.email,
+                                                    subscriptionHostedData: subscriptionData
+                                                    //res: res.data
+                                                }
+                                            })
+                                        }).catch(
+                                            function (err) {
+                                                console.error(err, err.stack);
+                                                done('422', {
+                                                    status: 'Error in sending mail'
+                                                });
+                                            });
                                 });
 
-                            /* } catch (error) {
+                            } catch (error) {
                                 done('401', {
                                     message: error.message
                                 });
-                            } */
+                            }
                         } else {
                             done('409', {
                                 message: 'User Account already Subscribed'
