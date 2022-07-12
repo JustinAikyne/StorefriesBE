@@ -85,8 +85,8 @@ exports.handler = (event, context, callback) => {
                                     let expiredSM = [];
                                     let promiseArr = [];
 
-                                    //let ip_address = event.requestContext.identity.sourceIp;
-                                    let ip_address = "27.5.182.192";
+                                    let ip_address = event.requestContext.identity.sourceIp;
+                                    //let ip_address = "27.5.182.192";
 
                                     const getOnboard = async () => {
                                         return new Promise(async (resolve, reject) => {
