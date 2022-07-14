@@ -158,6 +158,26 @@ Resources:
             Path: /notification/list
             TimeoutInMillis: 15000
             PayloadFormatVersion: "1.0"
+  SaveUserPages:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: "Dev_AK_SM_saveUserPages"
+      Timeout: 30
+      MemorySize: 10240
+      CodeUri: AK_SM_saveUserPages/
+      Handler: index.handler
+      Runtime: nodejs14.x
+      Events:
+        ExplicitApi: # warning: creates a public endpoint
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Auth:
+              Authorizer: "NONE"
+            Method: "POST"
+            Path: /manageSM/fb/saveUserPages
+            TimeoutInMillis: 15000
+            PayloadFormatVersion: "1.0"            
   CreatePost:
     Type: AWS::Serverless::Function
     Properties:
