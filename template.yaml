@@ -74,6 +74,213 @@ Resources:
             Path: /user/authenticateUser
             TimeoutInMillis: 15000
             PayloadFormatVersion: "1.0"
+  AuthenticateSocialUser:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: "Dev_AK_UM_AuthenticateSocialUser"
+      Timeout: 30
+      MemorySize: 10240
+      CodeUri: AuthenticateSocialUser/
+      Handler: index.handler
+      Runtime: nodejs14.x
+      Policies:
+        - AmazonSESFullAccess
+      Events:
+        ExplicitApi: # warning: creates a public endpoint
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Auth:
+              Authorizer: "NONE"
+            Method: "POST"
+            Path: /user/authenticateScUser
+            TimeoutInMillis: 15000
+            PayloadFormatVersion: "1.0"
+  Workspace:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: "Dev_AK_WM_Workspace"
+      Timeout: 80
+      MemorySize: 10240
+      CodeUri: AK_WM_Workspace/
+      Handler: index.handler
+      Runtime: nodejs14.x
+      Events:
+        CreateWorkspace: # warning: creates a public endpoint
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Method: "POST"
+            Path: /workspace/create
+            TimeoutInMillis: 15000
+            PayloadFormatVersion: "1.0"
+        GetWorkspace:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Method: "GET"
+            Path: /workspace/retrieve
+            TimeoutInMillis: 15000
+            PayloadFormatVersion: "1.0"
+        EditWorkspace:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Method: "PUT"
+            Path: /workspace/edit/{workspaceId}
+            TimeoutInMillis: 15000
+            PayloadFormatVersion: "1.0"
+        DeleteWorkspace:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Method: "DELETE"
+            Path: /workspace/delete/{workspaceId}
+            TimeoutInMillis: 15000
+            PayloadFormatVersion: "1.0"
+  ListNotification:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: "Dev_AK_NF_ListNotification"
+      Timeout: 30
+      MemorySize: 10240
+      CodeUri: AK_NF_ListNotification/
+      Handler: index.handler
+      Runtime: nodejs14.x
+      Events:
+        ExplicitApi: # warning: creates a public endpoint
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Auth:
+              Authorizer: "NONE"
+            Method: "GET"
+            Path: /notification/list
+            TimeoutInMillis: 15000
+            PayloadFormatVersion: "1.0"
+  CreatePost:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: "Dev_AK_SM_createPost"
+      Timeout: 50
+      MemorySize: 10240
+      CodeUri: AK_SM_createPost/
+      Handler: index.handler
+      Runtime: nodejs14.x
+      Policies:
+        - AmazonSESFullAccess
+        - AmazonS3FullAccess
+      Events:
+        ExplicitApi: # warning: creates a public endpoint
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Auth:
+              Authorizer: "NONE"
+            Method: "POST"
+            Path: /manageSM/postSocial
+            TimeoutInMillis: 15000
+            PayloadFormatVersion: "1.0"
+  Dashboard:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: "Dev_AK_SM_Dashboard"
+      Timeout: 40
+      MemorySize: 10240
+      CodeUri: AK_SM_Dashboard/
+      Handler: index.handler
+      Runtime: nodejs14.x
+      Events:
+        ExplicitApi: # warning: creates a public endpoint
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Auth:
+              Authorizer: "NONE"
+            Method: "POST"
+            Path: /manageSM/dashboard
+            TimeoutInMillis: 15000
+            PayloadFormatVersion: "1.0"
+  TwitterTrends:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: "Dev_AK_SM_Twitter_Trends"
+      Timeout: 30
+      MemorySize: 10240
+      CodeUri: AK_SM_Twitter_Trends/
+      Handler: index.handler
+      Runtime: nodejs14.x
+      Events:
+        ExplicitApi: # warning: creates a public endpoint
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Auth:
+              Authorizer: "NONE"
+            Method: "POST"
+            Path: /cityTrends
+            TimeoutInMillis: 15000
+            PayloadFormatVersion: "1.0"
+  RetrieveAllSocialPost:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: "Dev_AK_SM_RetrieveAllSocialPost"
+      Timeout: 50
+      MemorySize: 10240
+      CodeUri: AK_SM_RetrieveAllSocialPost/
+      Handler: index.handler
+      Runtime: nodejs14.x
+      Events:
+        ExplicitApi: # warning: creates a public endpoint
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Auth:
+              Authorizer: "NONE"
+            Method: "POST"
+            Path: /manageSM/retrieveAllPost
+            TimeoutInMillis: 15000
+            PayloadFormatVersion: "1.0"
+  RetrievePostFromWeb:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: "Dev_AK_SM_RetrievePostFromWeb"
+      Timeout: 30
+      MemorySize: 10240
+      CodeUri: AK_SM_RetrievePostFromWeb/
+      Handler: index.handler
+      Runtime: nodejs14.x
+      Events:
+        ExplicitApi: # warning: creates a public endpoint
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Auth:
+              Authorizer: "NONE"
+            Method: "POST"
+            Path: /manageSM/retrievePostWeb
+            TimeoutInMillis: 15000
+            PayloadFormatVersion: "1.0"
+  SocialMediaStatusUpdate:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: "Dev_AK_SM_SocialMediaStatusUpdate"
+      Timeout: 30
+      MemorySize: 10240
+      CodeUri: AK_SM_SocialMediaStatusUpdate/
+      Handler: index.handler
+      Runtime: nodejs14.x
+      Events:
+        ExplicitApi: # warning: creates a public endpoint
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Auth:
+              Authorizer: "NONE"
+            Method: "POST"
+            Path: /manageSM/socialMediaStatusUpdate
+            TimeoutInMillis: 15000
+            PayloadFormatVersion: "1.0"
   ActivateUser:
     Type: AWS::Serverless::Function
     Properties:
@@ -83,6 +290,8 @@ Resources:
       CodeUri: AK_UM_ActivateUser/
       Handler: index.handler
       Runtime: nodejs14.x
+      Policies:
+        - AmazonSESFullAccess
       Events:
         ExplicitApi: # warning: creates a public endpoint
           Type: HttpApi

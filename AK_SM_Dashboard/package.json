@@ -1,0 +1,22 @@
+{
+  "name": "ak_sm_dashboard",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "async": "^3.2.1",
+    "axios": "^0.21.1",
+    "btoa-atob": "^0.1.2",
+    "crypto": "^1.0.1",
+    "deepmerge": "^4.2.2",
+    "moment": "^2.29.3",
+    "mongoose": "^5.7.12",
+    "oauth-1.0a": "^2.2.6"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
