@@ -349,7 +349,6 @@ Resources:
           ThrottlingBurstLimit: 500 # overridden in HttpApi Event
       StageVariables:
         mongoDB: "StorefriesQA1:vfRPJcXLcQyWEt2r@storefriesqa1.qpgagus.mongodb.net/Storefriesqa1"
-        # mongoDB: "storefries:CH8U1ZXGyeILqFWy@storefries.76ocf.mongodb.net/SocialMediaPublisher"
         markettingMongoDB: "justin:cVMMTQazC5sAijai@socialmediacluster.yym8e.mongodb.net/marketting"
         authTokenURL: "https://storefriesqa.us.auth0.com/oauth/token"
         oauth_audience: "https://storefriesqa-jwt-authorizer"
@@ -382,7 +381,6 @@ Resources:
         notification_email: "dev@aikyne.com"
         trial_enable: yes
         Google_ClientId: "781834412445-ggdcsq1tuvsvsg99uh3pg6iqc6jqi4ug.apps.googleusercontent.com"
-        # confirm_endPoint: "https://e9a45i8ip3.execute-api.ap-south-1.amazonaws.com/Dev/aikyne/"
         confirm_endPoint: "	https://k2c6d61wth.execute-api.ap-south-1.amazonaws.com/Dev/aikyne/"
         BitlyRedirectURL: "https://test.storefries.com/bitlysuccess"
         s3_bucket_name: "aikyne-mediafiles"
