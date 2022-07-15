@@ -46,11 +46,11 @@ exports.handler = (event, context, callback) => {
 						switch (event.httpMethod) {
 							case 'POST':
 								console.log('Post workspace called')
-								if (event.path === "/workspace/create") {
+								if (event.resource === "/workspace/create") {
+									let body = JSON.parse(event.body);
 									try {
-										let body = JSON.parse(event.body);
 
-										if (!body.workspaceName) {
+										if (!body || !body.workspaceName) {
 											done('200', {
 												message: "workspaceName is required.",
 												status: false
@@ -85,7 +85,7 @@ exports.handler = (event, context, callback) => {
 													workspace.workspaceTimezone = body.workspaceTimezone;
 												}
 
-												let workspaceData = await workspace.save()
+												await workspace.save()
 												done('200', {
 													status: true,
 													message: 'Workspace register successfully.',
@@ -103,8 +103,40 @@ exports.handler = (event, context, callback) => {
 											message: 'Workspace create failed.',
 										})
 									}
-								} else if (event.path === "/workspace/make-default") {
-
+								} else if (event.resource === "/workspace/make-default") {
+									let body = JSON.parse(event.body);
+									if (!body || !body.workspaceId) {
+										done('200', {
+											message: "WorkspaceId required",
+											status: false
+										})
+										return;
+									}
+									let wpQry = { '_id': body.workspaceId };
+									workspaceModel.findOne(wpQry).exec(async (err, doc) => {
+										console.log("err, ..........", JSON.stringify(err), JSON.stringify(doc))
+										if (doc) {
+											if (doc.status == 'active') {
+												userDetails.default_workspace = body.workspaceId;
+												await userDetails.save();
+												done('200', {
+													data: 'Successfully updated',
+													status: true
+												})
+											} else {
+												done('405', {
+													message: 'Workspace is inactive',
+													status: false
+												});
+											}
+										} else {
+											done('403', {
+												message: 'Workspace not Found',
+												status: false
+											});
+											return;
+										}
+									})
 								} else {
 									done('404', {
 										message: "Path not available",
@@ -130,7 +162,7 @@ exports.handler = (event, context, callback) => {
 										},
 									},
 									{ "$unwind": { path: "$workspace", preserveNullAndEmptyArrays: true } },
-									{ "$project": { "_id": 0, "workspace": 1 } },
+									{ "$project": { "_id": 0, "default_workspace": 1, "workspace": 1 } },
 									{
 										"$lookup": {
 											"from": "users", "let": { "superAdminEmail": "$workspace.superAdmin" },
@@ -159,6 +191,16 @@ exports.handler = (event, context, callback) => {
 									{
 										"$project": {
 											"superAdmin": "$workspace.superAdmin",
+											//"default": "$default_workspace",
+											"default": {
+												$cond: {
+												  if: {
+													$eq: ["$default_workspace","$workspace._id"]
+												  },
+												  then: true,
+												  else: false,
+												}
+											  },
 											// "subscriptionPlanPeriod": "$subscriptionDetails.subscriptionPlanPeriod",
 											// "subscriptionPlanName": "$subscriptionDetails.subscriptionPlanName",
 											// "subscriptionPlanId": "$subscriptionDetails.subscriptionPlanId",
@@ -194,7 +236,7 @@ exports.handler = (event, context, callback) => {
 												"from": "users", "let": { "superAdminEmail": "$superAdmin" },
 												"pipeline": [
 													{ "$match": { $expr: { $and: [{ $eq: ["$$superAdminEmail", "$email"] }] } } },
-													{ "$project": { "features": "$features", "superAdminEmail": "$email" } }
+													{ "$project": { "features": "$features", "default_workspace": 1, "superAdminEmail": "$email" } }
 												], as: "superAdminDetails"
 											}
 										},
@@ -217,6 +259,17 @@ exports.handler = (event, context, callback) => {
 										{
 											"$project": {
 												"superAdmin": "$superAdmin",
+												//"default": "$superAdminDetails.default_workspace",
+												//"default": {$cond:[ {$eq: ['$workspaceId','$superAdminDetails.default_workspace']}, 'yes', 'no' ] },
+												"default": {
+													$cond: {
+													  if: {
+														$eq: ["$superAdminDetails.default_workspace","$workspaceId"]
+													  },
+													  then: true,
+													  else: false,
+													}
+												  },
 												//"subscriptionPlanPeriod": "$subscriptionDetails.subscriptionPlanPeriod",
 												//"subscriptionPlanName": "$subscriptionDetails.subscriptionPlanName",
 												//"subscriptionPlanId": "$subscriptionDetails.subscriptionPlanId",

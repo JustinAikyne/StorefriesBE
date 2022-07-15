@@ -100,7 +100,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: "Dev_AK_WM_Workspace"
-      Timeout: 80
+      Timeout: 30
       MemorySize: 10240
       CodeUri: AK_WM_Workspace/
       Handler: index.handler
@@ -112,6 +112,14 @@ Resources:
             ApiId: !Ref HttpApi
             Method: "POST"
             Path: /workspace/create
+            TimeoutInMillis: 15000
+            PayloadFormatVersion: "1.0"
+        WorkspaceMakeDefault:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Method: "POST"
+            Path: /workspace/make-default
             TimeoutInMillis: 15000
             PayloadFormatVersion: "1.0"
         GetWorkspace:
@@ -138,6 +146,58 @@ Resources:
             Path: /workspace/delete/{workspaceId}
             TimeoutInMillis: 15000
             PayloadFormatVersion: "1.0"
+  Member:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: "Dev_AK_UM_AddMember"
+      Timeout: 30
+      MemorySize: 10240
+      CodeUri: AK_UM_Member
+      Handler: index.handler
+      Runtime: nodejs14.x
+      Policies:
+        - AmazonSESFullAccess
+      Events:
+        AddMember: # warning: creates a public endpoint
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Method: "POST"
+            Path: /member/add-member
+            TimeoutInMillis: 15000
+            PayloadFormatVersion: "1.0"
+        RegisterMember: # warning: creates a public endpoint
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Method: "POST"
+            Path: /member/reg-member
+            TimeoutInMillis: 15000
+            PayloadFormatVersion: "1.0"
+        RemoveMember: # warning: creates a public endpoint
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Method: "DELETE"
+            Path: /member/delete/{workspaceId}/email/{email}
+            TimeoutInMillis: 15000
+            PayloadFormatVersion: "1.0"
+        GetMember: # warning: creates a public endpoint
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Method: "GET"
+            Path: /member/retrieve/{workspaceId}
+            TimeoutInMillis: 15000
+            PayloadFormatVersion: "1.0"
+        EditMember: # warning: creates a public endpoint
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Method: "PUT"
+            Path: /member/edit/{workspaceId}
+            TimeoutInMillis: 15000
+            PayloadFormatVersion: "1.0"            
   ListNotification:
     Type: AWS::Serverless::Function
     Properties:
@@ -152,8 +212,6 @@ Resources:
           Type: HttpApi
           Properties:
             ApiId: !Ref HttpApi
-            Auth:
-              Authorizer: "NONE"
             Method: "GET"
             Path: /notification/list
             TimeoutInMillis: 15000
@@ -172,8 +230,6 @@ Resources:
           Type: HttpApi
           Properties:
             ApiId: !Ref HttpApi
-            Auth:
-              Authorizer: "NONE"
             Method: "POST"
             Path: /manageSM/fb/saveUserPages
             TimeoutInMillis: 15000
@@ -195,8 +251,6 @@ Resources:
           Type: HttpApi
           Properties:
             ApiId: !Ref HttpApi
-            Auth:
-              Authorizer: "NONE"
             Method: "POST"
             Path: /manageSM/postSocial
             TimeoutInMillis: 15000
@@ -215,8 +269,6 @@ Resources:
           Type: HttpApi
           Properties:
             ApiId: !Ref HttpApi
-            Auth:
-              Authorizer: "NONE"
             Method: "POST"
             Path: /manageSM/dashboard
             TimeoutInMillis: 15000
@@ -235,8 +287,6 @@ Resources:
           Type: HttpApi
           Properties:
             ApiId: !Ref HttpApi
-            Auth:
-              Authorizer: "NONE"
             Method: "POST"
             Path: /cityTrends
             TimeoutInMillis: 15000
@@ -255,8 +305,6 @@ Resources:
           Type: HttpApi
           Properties:
             ApiId: !Ref HttpApi
-            Auth:
-              Authorizer: "NONE"
             Method: "POST"
             Path: /manageSM/retrieveAllPost
             TimeoutInMillis: 15000
@@ -275,8 +323,6 @@ Resources:
           Type: HttpApi
           Properties:
             ApiId: !Ref HttpApi
-            Auth:
-              Authorizer: "NONE"
             Method: "POST"
             Path: /manageSM/retrievePostWeb
             TimeoutInMillis: 15000
@@ -295,8 +341,6 @@ Resources:
           Type: HttpApi
           Properties:
             ApiId: !Ref HttpApi
-            Auth:
-              Authorizer: "NONE"
             Method: "POST"
             Path: /manageSM/socialMediaStatusUpdate
             TimeoutInMillis: 15000
