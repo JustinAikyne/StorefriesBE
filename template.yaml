@@ -381,7 +381,7 @@ Resources:
         notification_email: "dev@aikyne.com"
         trial_enable: yes
         Google_ClientId: "781834412445-ggdcsq1tuvsvsg99uh3pg6iqc6jqi4ug.apps.googleusercontent.com"
-        confirm_endPoint: "	https://k2c6d61wth.execute-api.ap-south-1.amazonaws.com/Dev/aikyne/"
+        confirm_endPoint: "https://k2c6d61wth.execute-api.ap-south-1.amazonaws.com/Dev/aikyne/"
         BitlyRedirectURL: "https://test.storefries.com/bitlysuccess"
         s3_bucket_name: "aikyne-mediafiles"
         site_url: "https://test.storefries.com"
