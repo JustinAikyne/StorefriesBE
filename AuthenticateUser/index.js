@@ -229,7 +229,7 @@ exports.handler = (event, context, callback) => {
 
                                     promiseArr.push(getOnboard());
                                     promiseArr.push(getWorkspace());
-                                    promiseArr.push(getSocialMedia());
+                                    //promiseArr.push(getSocialMedia());
                                     if (event.requestContext && event.requestContext.identity && event.requestContext.identity.sourceIp) {
                                         promiseArr.push(getIpinfo());
                                     }
@@ -323,7 +323,7 @@ exports.handler = (event, context, callback) => {
                                                         changePassword: doc.changePassword,
                                                         onBoarding: onBoardStatus,
                                                         workspaceAvailable: workspaceAvailable,
-                                                        expiredSocialMedia: expiredSM
+                                                        //expiredSocialMedia: expiredSM
                                                     }
                                                 });
                                             }).catch(err => {
@@ -339,7 +339,7 @@ exports.handler = (event, context, callback) => {
                                                         changePassword: doc.changePassword,
                                                         onBoarding: onBoardStatus,
                                                         workspaceAvailable: workspaceAvailable,
-                                                        expiredSocialMedia: expiredSM
+                                                        //expiredSocialMedia: expiredSM
                                                     }
                                                 });
                                             });

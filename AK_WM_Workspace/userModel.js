@@ -1,4 +1,6 @@
 var mongoose = require('mongoose');
+const Schema = mongoose.Schema
+const ObjectId = Schema.Types.ObjectId
 
 var userSchema = new mongoose.Schema({
     userId: String,
@@ -14,6 +16,7 @@ var userSchema = new mongoose.Schema({
         lat: Number
     },
     formatted_address: String,
+    default_workspace: ObjectId,
     suspended_status: { type: String, default: 'inactive' },
     features: { 
         totalSocialChannel: { type: Number, default: 0 },

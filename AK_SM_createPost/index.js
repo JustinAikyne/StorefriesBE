@@ -335,7 +335,7 @@ exports.handler = (event, context, callback) => {
                     "shareMediaCategory": "NONE"
                 };
 
-                if (postReq.linkObj && postReq.linkObj.url) {
+                if (linkedMedia.length === 0 && postReq.linkObj && postReq.linkObj.url) {
                     linkedMedia.push({
                         "originalUrl": postReq.linkObj.url,
                         "thumbnails": [{

@@ -210,7 +210,7 @@ exports.handler = (event, context, callback) => {
 
                                 promiseArr.push(getOnboard());
                                 promiseArr.push(getWorkspace());
-                                promiseArr.push(getSocialMedia());
+                                //promiseArr.push(getSocialMedia());
                                 if (event.requestContext && event.requestContext.identity && event.requestContext.identity.sourceIp) {
                                     let ip_address = event.requestContext.identity.sourceIp;
                                     promiseArr.push(getIpinfo(ip_address));
@@ -301,7 +301,7 @@ exports.handler = (event, context, callback) => {
                                                     email: doc.email,
                                                     onBoarding: onBoardStatus,
                                                     workspaceAvailable: workspaceAvailable,
-                                                    expiredSocialMedia: expiredSM
+                                                    //expiredSocialMedia: expiredSM
                                                     //res: res.data
                                                 }
                                             });
@@ -317,7 +317,7 @@ exports.handler = (event, context, callback) => {
                                                     email: doc.email,
                                                     onBoarding: onBoardStatus,
                                                     workspaceAvailable: workspaceAvailable,
-                                                    expiredSocialMedia: expiredSM
+                                                    //expiredSocialMedia: expiredSM
                                                     //res: res.data
                                                 }
                                             });
@@ -585,7 +585,7 @@ exports.handler = (event, context, callback) => {
                                                     subscriptionHostedData: subscriptionData,
                                                     onBoarding: onBoardStatus,
                                                     workspaceAvailable: workspaceAvailable,
-                                                    expiredSocialMedia: expiredSM
+                                                    //expiredSocialMedia: expiredSM
                                                     //res: res.data
                                                 }
                                             });

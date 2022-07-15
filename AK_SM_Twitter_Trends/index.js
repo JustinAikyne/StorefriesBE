@@ -72,26 +72,33 @@ exports.handler = (event, context, callback) => {
 
 								console.log("woeid............", woeid);
 
-								const request1 = {
-									url: `https://api.twitter.com/1.1/trends/place.json?id=${woeid}`,
-									method: 'GET',
-									body: {}
-								}
-								//let authHeader = AuthHelper.getAuthHeaderForRequest(request1, event.stageVariables['Twitter_ConsumerKey'], event.stageVariables['Twitter_ConsumerSecret']);
-								let authHeader = AuthHelper.getAuthHeaderForRequest(request1, CONSUMERKEY, CONSUMERSECRET);
-								var resp = await axios.get(encodeURI(request1.url), { headers: authHeader })
-								if (resp && resp.data && resp.data.length > 0) {
-									let trends = resp.data[0].trends.slice(0, (resp.data[0].trends.length > itemCount ? itemCount : resp.data[0].trends.length));
-									resp.data[0].trends = trends;
-
+								try {
+									const request1 = {
+										url: `https://api.twitter.com/1.1/trends/place.json?id=${woeid}`,
+										method: 'GET',
+										body: {}
+									}
+									//let authHeader = AuthHelper.getAuthHeaderForRequest(request1, event.stageVariables['Twitter_ConsumerKey'], event.stageVariables['Twitter_ConsumerSecret']);
+									let authHeader = AuthHelper.getAuthHeaderForRequest(request1, CONSUMERKEY, CONSUMERSECRET);
+									var resp = await axios.get(encodeURI(request1.url), { headers: authHeader })
+									if (resp && resp.data && resp.data.length > 0) {
+										let trends = resp.data[0].trends.slice(0, (resp.data[0].trends.length > itemCount ? itemCount : resp.data[0].trends.length));
+										resp.data[0].trends = trends;
+	
+										done('200', {
+											data: resp.data[0]
+										})
+									} else {
+										done('400', {
+											message: "Trends not available"
+										});
+									}									
+								} catch (error) {
 									done('200', {
-										data: resp.data[0]
+										data: {trends:[]}
 									})
-								} else {
-									done('400', {
-										message: "Trends not available"
-									});
 								}
+
 							} else {
 								done('400', {
 									message: "User not Found"
