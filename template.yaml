@@ -149,7 +149,7 @@ Resources:
   Member:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: "Dev_AK_UM_AddMember"
+      FunctionName: "Dev_AK_UM_Member"
       Timeout: 30
       MemorySize: 10240
       CodeUri: AK_UM_Member
@@ -170,6 +170,8 @@ Resources:
           Type: HttpApi
           Properties:
             ApiId: !Ref HttpApi
+            Auth:
+              Authorizer: "NONE"
             Method: "POST"
             Path: /member/reg-member
             TimeoutInMillis: 15000
@@ -372,6 +374,17 @@ Resources:
     Type: AWS::Serverless::HttpApi
     Properties:
       StageName: !Ref StageName
+      CorsConfiguration:
+        AllowOrigins:
+          - "*"
+        AllowHeaders:
+          - "*"
+        AllowMethods:
+          - "*"
+        ExposeHeaders:
+          - "*"
+        MaxAge: 600
+        AllowCredentials: true
       Tags:
         Tag: Value
       AccessLogSettings:
