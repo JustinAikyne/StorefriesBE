@@ -1,4 +1,6 @@
 var mongoose = require('mongoose');
+const Schema = mongoose.Schema
+const ObjectId = Schema.Types.ObjectId
 
 var userSchema = new mongoose.Schema({
     userId: String,
@@ -14,25 +16,27 @@ var userSchema = new mongoose.Schema({
         lat: Number
     },
     formatted_address: String,
+    default_workspace: ObjectId,
+    invitedBy: String,
     suspended_status: { type: String, default: 'inactive' },
     features: { 
-        totalSocialChannel: { type: Number, default: 0 },
-        totalUploadSize: { type: Number, default: 0 },
-        totalSchedulePostCount: { type: Number, default: 0 },
-        totalPostCount: { type: Number, default: 0 },
-        totalRssFeedCount: { type: Number, default: 0 },
-        totalDraftPostCount: { type: Number, default: 0 },
-        currentDraftPostCount: { type: Number, default: 0 },
-        currentSocialChannel: { type: Number, default: 0 },
-        currentUploadSize: { type: Number, default: 0 },
-        currentSchedulePostCount: { type: Number, default: 0 },
-        currentRssFeedCount: { type: Number, default: 0 },
-        currentPostCount: { type: Number, default: 0 },
-        is_UrlShortnerAllowed: { type: Boolean, default: false },
-        is_CalendarViewAllowed: { type: Boolean, default: false },
-        is_CanvaAllowed: { type: Boolean, default: false },
-        is_EngagementViewAllowed: { type: Boolean, default: false },
-        is_DashboardViewAllowed: { type: Boolean, default: false },
+        totalSocialChannel: Number,
+        totalUploadSize: Number,
+        totalSchedulePostCount: Number,
+        totalPostCount: Number,
+        totalRssFeedCount: Number,
+        totalDraftPostCount: Number,
+        currentDraftPostCount: Number,
+        currentSocialChannel: Number,
+        currentUploadSize: Number,
+        currentSchedulePostCount: Number,
+        currentRssFeedCount: Number,
+        currentPostCount: Number,
+        is_UrlShortnerAllowed: Boolean,
+        is_CalendarViewAllowed: Boolean,
+        is_CanvaAllowed: Boolean,
+        is_EngagementViewAllowed: Boolean,
+        is_DashboardViewAllowed: Boolean
     }
 });
 

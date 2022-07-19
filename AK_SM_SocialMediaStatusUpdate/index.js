@@ -24,7 +24,7 @@ exports.handler = (event, context, callback) => {
     // const client_secrets = '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';
     var youtubeClientId = event.stageVariables['Google_ClientId'];
     var youtubeClientSecret = event.stageVariables['Google_ClientSecret']
-    
+
     /* var connectorMongodb = mongoose.connect('mongodb+srv://storefries:CH8U1ZXGyeILqFWy@storefries.76ocf.mongodb.net/SocialMediaPublisher', { useNewUrlParser: true, useUnifiedTopology: true });
     const CONSUMERKEY = 'eLD1dQVA2Sz4rN166vyJnF8m8';
     const CONSUMERSECRET = 'qtO5wIc479drT3YqmiNYzRSTsc6hrpVR7paj8ZgMAAoDdSW50H';
@@ -32,7 +32,7 @@ exports.handler = (event, context, callback) => {
 
     const client_id = '781834412445-ggdcsq1tuvsvsg99uh3pg6iqc6jqi4ug.apps.googleusercontent.com';
     const client_secrets = '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'; */
-    
+
     const updateTwitterStatus = (socialDoc, reqObj) => {
         console.log('Twitter Post called>>>');
 
@@ -565,7 +565,7 @@ exports.handler = (event, context, callback) => {
             }
         } catch (error) {
             console.log("err2")
-            console.log("error......linkedin........",JSON.stringify(error))
+            console.log("error......linkedin........", JSON.stringify(error))
             done('404', {
                 status: "LinkedIn data retrive failed",
                 message: error.message
@@ -590,7 +590,7 @@ exports.handler = (event, context, callback) => {
                     addQueryParams = ",likes.summary(true)"
                 }
 
-                let url = 'https://graph.facebook.com/v12.0/' + reqObj.postId + '?access_token=' + socialDoc.pageToken + `&fields=message,targeting,created_time,comments{id,name,like_count,comment_count,attachments,from{name,id,picture},created_time,comments{id,name,like_count,comment_count,attachments,from{name,id,picture},created_time,message},to{id},message},attachments,from,to,parent_id,story,place,actions${addQueryParams}`
+                let url = 'https://graph.facebook.com/v12.0/' + reqObj.postId + '?access_token=' + socialDoc.pageToken + `&fields=message,targeting,created_time,comments{id,name,like_count,comment_count,attachment,from{name,id,picture},created_time,comments{id,name,like_count,comment_count,attachment,from{name,id,picture},created_time,message},to{id},message},attachments,from,to,parent_id,story,place,actions${addQueryParams}`
 
                 //let url = 'https://graph.facebook.com/' + reqObj.postId + '?access_token=' + socialDoc.pageToken + '&fields=message,likes.summary(true),created_time,comments,attachments,from,parent_id,story,place,actions'
 
@@ -640,33 +640,34 @@ exports.handler = (event, context, callback) => {
                             postInfo.geo_location.lat = convRes.data.place.location.longitude;
                         }
                     }
+
                     /* 
-                                        if (convRes.data.attachments && convRes.data.attachments.data && convRes.data.attachments.data[0]
-                                            && convRes.data.attachments.data[0].subattachments && convRes.data.attachments.data[0].subattachments.data && convRes.data.attachments.data[0].subattachments.data.length > 0) {
-                                            postInfo["mediaUrl"] = convRes.data.attachments.data[0].subattachments.data.flatMap(mediaData => {
-                                                if (mediaData.media && mediaData.media.image && mediaData.media.image.src && mediaData.type == "photo") {
-                                                    return mediaData.media.image.src
-                                                } else {
-                                                    return []
-                                                }
-                                            })
-                                        } else if (convRes.data.attachments && convRes.data.attachments.data && convRes.data.attachments.data[0] && !convRes.data.attachments.data[0].subattachments) {
-                                            postInfo["mediaUrl"] = convRes.data.attachments.data.flatMap(mediaData => {
-                                                if (mediaData.media && mediaData.media.image && mediaData.media.image.src && mediaData.type == "share") {
-                                                    let linkObject = {};
-                                                    linkObject.description = mediaData.description ? mediaData.description : '';
-                                                    linkObject.imageUrl = mediaData.media.image.src ? mediaData.media.image.src : '';
-                                                    linkObject.title = mediaData.title ? mediaData.title : '';
-                                                    linkObject.targetUrl = mediaData.target.url ? mediaData.target.url : mediaData.target.url ? mediaData.target.url : '';
-                                                    postInfo["linkObj"].push(linkObject)
-                                                }
-                                                if (mediaData.media && mediaData.media.image && mediaData.media.image.src && mediaData.type == "photo") {
-                                                    return mediaData.media.image.src
-                                                } else {
-                                                    return []
-                                                }
-                                            })
-                                        } */
+                        if (convRes.data.attachments && convRes.data.attachments.data && convRes.data.attachments.data[0]
+                            && convRes.data.attachments.data[0].subattachments && convRes.data.attachments.data[0].subattachments.data && convRes.data.attachments.data[0].subattachments.data.length > 0) {
+                            postInfo["mediaUrl"] = convRes.data.attachments.data[0].subattachments.data.flatMap(mediaData => {
+                                if (mediaData.media && mediaData.media.image && mediaData.media.image.src && mediaData.type == "photo") {
+                                    return mediaData.media.image.src
+                                } else {
+                                    return []
+                                }
+                            })
+                        } else if (convRes.data.attachments && convRes.data.attachments.data && convRes.data.attachments.data[0] && !convRes.data.attachments.data[0].subattachments) {
+                            postInfo["mediaUrl"] = convRes.data.attachments.data.flatMap(mediaData => {
+                                if (mediaData.media && mediaData.media.image && mediaData.media.image.src && mediaData.type == "share") {
+                                    let linkObject = {};
+                                    linkObject.description = mediaData.description ? mediaData.description : '';
+                                    linkObject.imageUrl = mediaData.media.image.src ? mediaData.media.image.src : '';
+                                    linkObject.title = mediaData.title ? mediaData.title : '';
+                                    linkObject.targetUrl = mediaData.target.url ? mediaData.target.url : mediaData.target.url ? mediaData.target.url : '';
+                                    postInfo["linkObj"].push(linkObject)
+                                }
+                                if (mediaData.media && mediaData.media.image && mediaData.media.image.src && mediaData.type == "photo") {
+                                    return mediaData.media.image.src
+                                } else {
+                                    return []
+                                }
+                            })
+                    } */
 
                     if (convRes.data.attachments && convRes.data.attachments.data && convRes.data.attachments.data[0] &&
                         convRes.data.attachments.data[0].subattachments && convRes.data.attachments.data[0].subattachments.data && convRes.data.attachments.data[0].subattachments.data.length > 0) {
@@ -688,6 +689,21 @@ exports.handler = (event, context, callback) => {
                             console.log("else if     mediaData", mediaData)
                             if (mediaData?.media?.image?.src && (mediaData.type == "share" || mediaData.type == "link")) {
                                 postInfo['mediaType'] = "link";
+                                if (mediaData.media && mediaData.media.image && mediaData.media.image.src && (mediaData.type == "share" || mediaData.type == "link")) {
+                                    let linkObject = {};
+                                    linkObject.description = mediaData.description ? mediaData.description : '';
+                                    linkObject.imageUrl = mediaData.media.image.src ? mediaData.media.image.src : '';
+                                    linkObject.title = mediaData.title ? mediaData.title : '';
+                                    linkObject.targetUrl = mediaData.target.url ? mediaData.target.url : mediaData.target.url ? mediaData.target.url : '';
+                                    linkObject.display_url = mediaData.target.url ? mediaData.target.url : mediaData.target.url ? mediaData.target.url : '';
+                                    if (linkObject.display_url !== '') {
+                                        let url = new URL(decodeURIComponent(linkObject.display_url));
+                                        let dUrl = url.searchParams.get("u");
+                                        console.log("...........", dUrl);
+                                        linkObject.display_url = dUrl;
+                                    }
+                                    postInfo["linkObj"].push(linkObject)
+                                }
                             }
                             if (mediaData?.media?.image?.src && (mediaData.type == "photo" || mediaData.type == "album")) {
                                 postInfo['mediaType'] = "image";
@@ -715,6 +731,7 @@ exports.handler = (event, context, callback) => {
                     }
 
                     if (convRes.data.comments && convRes.data.comments.data && convRes.data.comments.data.length > 0) {
+                        console.log("convRes.data.comments.data", JSON.stringify(convRes.data.comments.data))
                         conversations.data = convRes.data.comments.data.map(comment => {
                             let replied = {};
 
@@ -723,6 +740,12 @@ exports.handler = (event, context, callback) => {
                             if (comment.from && comment.from.picture && comment.from.picture.data) {
                                 comment.from.profileImage = comment.from.picture.data.url;
                                 delete comment.from.picture;
+                            }
+                            comment.mediaUrl = comment?.attachment?.media?.image?.src ?? undefined;
+                            comment.mediaType = comment?.attachment?.media?.image?.src ? 'image' : "text";
+                            if (comment?.attachment?.type && comment.attachment.type == "animated_image_share") {
+                                comment.mediaUrl = comment.attachment.url;
+                                comment.mediaType = "gif";
                             }
                             comment.likes = comment.like_count || 0;
                             comment.comments = comment.comment_count || 0;
@@ -824,8 +847,6 @@ exports.handler = (event, context, callback) => {
                         });
                     }
                     break;
-
-
                 case 'comment':
                     let postMessage = encodeURI(body.postData)
                     postMessage = postMessage.replace(/#/g, '%23');
@@ -835,9 +856,22 @@ exports.handler = (event, context, callback) => {
                         url = 'https://graph.facebook.com/' + body.commentId + '/comments?message=' + postMessage + '&access_token=' + socialDoc.pageToken;
                     }
                     if (body.imageUrl) {
-                        let imageData = await axios.post(`https://graph.facebook.com/${socialDoc.pageId}/photos?url=${body.imageUrl}&access_token=${socialDoc.pageToken}&published=false`, null)
-                        console.log("imageData", JSON.stringify(imageData.data));
-                        url = 'https://graph.facebook.com/' + reqObj.postId + '/comments?message=' + postMessage + '&access_token=' + socialDoc.pageToken + '&attachment_id=' + imageData.data.id;
+                        /* let splitVal = body.imageUrl.split('.')
+                        let ext = splitVal[splitVal.length - 1];
+
+                        if (ext == 'mp4' || ext == 'gif') {
+                            url = 'https://graph.facebook.com/' + reqObj.postId + '/comments?message=' + postMessage + '&access_token=' + socialDoc.pageToken + '&attachment_share_url=' + body.imageUrl;
+                        } else {
+                            let imageData = await axios.post(`https://graph.facebook.com/${socialDoc.pageId}/photos?url=${body.imageUrl}&access_token=${socialDoc.pageToken}&published=false`, null)
+                            console.log("imageData", JSON.stringify(imageData.data));
+                            url = 'https://graph.facebook.com/' + reqObj.postId + '/comments?message=' + postMessage + '&access_token=' + socialDoc.pageToken + '&attachment_id=' + imageData.data.id;
+                        } */
+                        url = 'https://graph.facebook.com/' + reqObj.postId + '/comments?message=' + postMessage + '&access_token=' + socialDoc.pageToken + '&attachment_url=' + body.imageUrl;
+                        let splitVal = body.imageUrl.split('.')
+                        let ext = splitVal[splitVal.length - 1];
+                        if (ext == 'mp4' || ext == 'gif') {
+                            url = 'https://graph.facebook.com/' + reqObj.postId + '/comments?message=' + postMessage + '&access_token=' + socialDoc.pageToken + '&attachment_share_url=' + body.imageUrl;
+                        }
                     }
                     console.log("url", JSON.stringify(url))
                     let commentData = await axios.post(url, null)
@@ -1035,7 +1069,7 @@ exports.handler = (event, context, callback) => {
 
                 Promise.all(promiseArray).then((post) => {
 
-                    console.log("post",JSON.stringify(post))
+                    console.log("post", JSON.stringify(post))
                     let postInfo = {};
                     let titileText = '';
                     //let favorited = false;
@@ -1402,297 +1436,6 @@ exports.handler = (event, context, callback) => {
         }
     }
 
-    /* const updateLinkedinStatus = async (socialDoc, reqObj) => {
-
-        let postAction = async () => {
-            try {
-                //let shareData = await axios.get('https://api.linkedin.com/v2/shares/' + reqObj.postId, { headers: { 'Authorization': 'Bearer ' + socialDoc.socialMedia[0].oauth_token } })
-                //let socialActionData = await axios.get('https://api.linkedin.com/v2/socialActions/' + reqObj.postId, { headers: { 'Authorization': 'Bearer ' + socialDoc.socialMedia[0].oauth_token } })
-                let shareData = async () => {
-                    return new Promise(async (resolve, reject) => {
-                        axios.get('https://api.linkedin.com/v2/shares/' + reqObj.postId, { headers: { 'Authorization': 'Bearer ' + socialDoc.socialMedia[0].oauth_token } }).then((resp) => {
-                            if (resp.data) {
-                                resolve({ shareData: resp.data })
-                            } else {
-                                resolve({ shareData: {} })
-                            }
-                        }).catch(err => {
-                            resolve({ shareData: {} })
-                        })
-                    })
-                }
-                let socialActionData = async () => {
-                    return new Promise(async (resolve, reject) => {
-                        axios.get('https://api.linkedin.com/v2/socialActions/' + reqObj.postId, { headers: { 'Authorization': 'Bearer ' + socialDoc.socialMedia[0].oauth_token } }).then((resp) => {
-                            if (resp.data) {
-                                resolve({ socialActionData: resp.data })
-                            } else {
-                                resolve({ socialActionData: {} })
-                            }
-                        }).catch(err => {
-                            resolve({ socialActionData: {} })
-                        })
-                    })
-                }
-
-                let linkedinComments = async () => {
-                    return new Promise(async (resolve, reject) => {
-                        let responseArr = []
-                        let commentsData = await axios.get("https://api.linkedin.com/v2/socialActions/" + reqObj.postId + "/comments", { headers: { 'Authorization': 'Bearer ' + socialDoc.socialMedia[0].oauth_token } })
-
-                        if (commentsData.data && commentsData.data.elements && commentsData.data.elements.length > 0) {
-                            for await (const comData of commentsData.data.elements) {
-                                console.log("comData", JSON.stringify(comData));
-                                let resObj = {}
-                                resObj.postDate = comData.created.time;
-                                resObj.message = comData.message.text;
-                                resObj.commentUrn = comData.$URN;
-                                resObj.commentId = comData.id;
-                                resObj.pageId = reqObj.userId;
-                                resObj.activity = comData.object;
-                                resObj.like_count = 0;
-                                resObj.reply_count = 0;
-                                resObj.likedByCurrentUser = false
-                                resObj["mediaUrl"] = "";
-                                if (comData.content && comData.content[0]) {
-                                    if (comData.content[0].type == 'IMAGE') {
-                                        resObj["mediaUrl"] = comData.content[0].url;
-                                    }
-                                }
-                                if (comData.likesSummary && comData.likesSummary.aggregatedTotalLikes) {
-                                    resObj.like_count = comData.likesSummary.aggregatedTotalLikes;
-                                }
-                                if (comData.likesSummary && comData.likesSummary.selectedLikes && comData.likesSummary.selectedLikes.length > 0) {
-                                    comData.likesSummary.selectedLikes.map(likeData => {
-                                        var companyId = comData.actor.split(':').pop()
-                                        console.log("companyId", companyId);
-                                        if (likeData.includes(companyId)) {
-                                            resObj.likedByCurrentUser = true;
-                                            return
-                                        }
-                                    })
-                                }
-                                if (comData.commentsSummary && comData.commentsSummary.aggregatedTotalComments) {
-                                    resObj.reply_count = comData.commentsSummary.aggregatedTotalComments;
-                                }
-                                let commThread = []
-                                let commentsThread = await axios.get("https://api.linkedin.com/v2/socialActions/" + comData.$URN + "/comments", { headers: { 'Authorization': 'Bearer ' + socialDoc.socialMedia[0].oauth_token } })
-
-                                if (commentsThread.data && commentsThread.data.elements && commentsThread.data.elements.length > 0) {
-                                    commentsThread.data.elements.forEach(threadData => {
-                                        let threadObj = {}
-                                        console.log("threadData", JSON.stringify(threadData));
-                                        threadObj.postDate = threadData.created.time;
-                                        threadObj.message = threadData.message.text;
-                                        threadObj.commentUrn = threadData.$URN;
-                                        threadObj.commentId = threadData.id;
-                                        threadObj.activity = threadData.object;
-                                        threadObj.pageId = reqObj.userId;
-                                        threadObj.like_count = 0;
-                                        threadObj.reply_count = 0;
-                                        threadObj.likedByCurrentUser = false;
-                                        threadObj["mediaUrl"] = "";
-                                        if (threadData.content && threadData.content[0]) {
-                                            if (threadData.content[0].type == 'IMAGE') {
-                                                threadObj["mediaUrl"] = threadData.content[0].url;
-                                            }
-                                        }
-                                        if (threadData.likesSummary && threadData.likesSummary.aggregatedTotalLikes) {
-                                            threadObj.like_count = threadData.likesSummary.aggregatedTotalLikes;
-                                        }
-                                        if (threadData.likesSummary && threadData.likesSummary.selectedLikes && threadData.likesSummary.selectedLikes.length > 0) {
-                                            threadData.likesSummary.selectedLikes.map(likeData => {
-                                                var companyId = threadData.actor.split(':').pop()
-                                                console.log("companyId", companyId);
-                                                if (likeData.includes(companyId)) {
-                                                    threadObj.likedByCurrentUser = true;
-                                                    return
-                                                }
-                                            })
-                                        }
-                                        if (threadData.commentsSummary && threadData.commentsSummary.aggregatedTotalComments) {
-                                            threadObj.reply_count = threadData.commentsSummary.aggregatedTotalComments;
-                                        }
-                                        commThread.push(threadObj)
-                                    });
-                                    resObj.commentsThread = commThread;
-                                }
-                                responseArr.push(resObj)
-                            }
-                        }
-
-                        resolve({ comments: responseArr })
-                    })
-
-                    console.log("responseArr", responseArr.length);
-                    done('200', {
-                        status: "Comment details retrieved succussfully",
-                        data: responseArr
-                    });
-                }
-
-                //let merged = { ...shareData.data, ...socialActionData.data }
-
-                let promiseArray = [];
-
-                promiseArray.push(shareData());
-                promiseArray.push(socialActionData());
-                promiseArray.push(linkedinComments());
-
-                Promise.all(promiseArray).then(resArr => {
-
-
-
-                    let postInfo = {};
-                    postInfo.mediaUrl = []
-                    postInfo.userId = reqObj.userId;
-                    postInfo.postStatus = "Success";
-                    postInfo.postId = reqObj.postId;
-                    let postData = "";
-                    let likedByCurrentUser = false;
-
-                    let comments = []
-                    let public_metrics = {}
-
-                    resArr.forEach(finalRes => {
-                        if (finalRes.shareData) {
-                            postData = finalRes.shareData.text.text;
-                            postInfo.postDate = finalRes.shareData.created.time;
-                            postInfo.activity = finalRes.shareData.activity;
-                            postInfo.pageId = finalRes.shareData.owner;
-
-                            if (finalRes.shareData.content && finalRes.shareData.content.contentEntities && finalRes.shareData.content.contentEntities.length > 0) {
-                                if (finalRes.shareData.content.shareMediaCategory !== 'ARTICLE') {
-                                    postInfo["mediaUrl"] = finalRes.shareData.content.contentEntities.map(mediaData => {
-                                        return mediaData.entityLocation
-                                    })
-                                }
-                            }
-                        }
-
-                        if (finalRes.socialActionData) {
-                            public_metrics.like_count = finalRes.socialActionData.likesSummary.totalLikes || 0;
-                            public_metrics.reply_count = finalRes.socialActionData.commentsSummary.aggregatedTotalComments || 0;
-                            likedByCurrentUser = finalRes.socialActionData.likesSummary.likedByCurrentUser;
-                        }
-
-                        if (finalRes.comments) {
-                            comments = finalRes.comments;
-                        }
-
-                    });
-
-
-                    done('200', {
-                        status: "LinkedIn Post Retrieved",
-                        data: {
-                            postStatus: "Posted",
-                            postData: postData,
-                            postInfo: postInfo,
-                            public_metrics: public_metrics,
-                            "likedByCurrentUser": likedByCurrentUser,
-                            //linkedinData: merged,
-                            conversations: comments
-                        }
-                    });
-                })
-
-            } catch (error) {
-                done('401', {
-                    status: "LinkedIn data retrive failed",
-                    message: error.message
-                });
-            }
-        }
-
-        try {
-            switch (reqObj.action) {
-                case 'like':
-                    let request = {}
-                    request.body = {
-                        "actor": "urn:li:person:" + reqObj.userId,
-                        "object": reqObj.postId
-                    }
-                    let urn = reqObj.postId
-                    if (body.commentUrn) {
-                        urn = body.commentUrn;
-                    }
-                    console.log("urn", JSON.stringify(urn));
-                    let likeResp = await axios.post("https://api.linkedin.com/v2/socialActions/" + urn + "/likes",
-                        request.body, { headers: { 'Authorization': 'Bearer ' + socialDoc.socialMedia[0].oauth_token } })
-                    postAction()
-                    break;
-                case 'unlike':
-                    let commentUrn = reqObj.postId
-                    if (body.commentUrn) {
-                        commentUrn = body.commentUrn;
-                    }
-                    let unlikeResp = await axios.delete("https://api.linkedin.com/v2/socialActions/" + commentUrn + "/likes/urn:li:person:" + reqObj.userId + "?actor=urn:li:person:" + reqObj.userId,
-                        { headers: { 'Authorization': 'Bearer ' + socialDoc.socialMedia[0].oauth_token } })
-                    postAction()
-                    break;
-                case 'comment':
-                    if (!body.message) {
-                        done('400', {
-                            status: 'message is required',
-                            data: body
-                        });
-                    }
-                    let reqBody = {}
-                    reqBody["actor"] = "urn:li:person:" + reqObj.userId;
-                    reqBody["object"] = reqObj.postId;
-                    reqBody["message"] = {}
-                    reqBody.message["text"] = body.message
-
-                    if (body.imageUrl) {
-                        reqBody.content = [
-                            {
-                                "entity": {
-                                    "digitalmediaAsset": body.imageUrl
-                                },
-                                "type": "IMAGE"
-                            }
-                        ]
-                    }
-                    let url = "https://api.linkedin.com/v2/socialActions/" + reqObj.postId + "/comments";
-                    if (body.commentUrn) {
-                        reqBody.parentComment = body.commentUrn;
-                        //url = "https://api.linkedin.com/v2/socialActions/urn:li:comment:("+reqObj.postId,body.commentId+")/comments";
-                        url = "https://api.linkedin.com/v2/socialActions/" + body.commentUrn + "/comments";
-                    }
-                    let commentResp = await axios.post(url, reqBody, { headers: { 'Authorization': 'Bearer ' + socialDoc.socialMedia[0].oauth_token } })
-                    postAction()
-                    break;
-                case 'deletecomment':
-                    if (!body.commentId) {
-                        done('400', {
-                            status: 'Comment Id is required',
-                            data: body
-                        });
-                    }
-                    if (body.pageId) {
-                        let deleteCommentResp = await axios.delete("https://api.linkedin.com/v2/socialActions/" + reqObj.postId + "/comments/" + body.commentId + "?actor=" + body.pageId,
-                            { headers: { 'Authorization': 'Bearer ' + socialDoc.socialMedia[0].oauth_token } })
-                    } else {
-                        let deleteCommentRespo = await axios.delete("https://api.linkedin.com/v2/socialActions/" + reqObj.postId + "/comments/" + body.commentId,
-                            { headers: { 'Authorization': 'Bearer ' + socialDoc.socialMedia[0].oauth_token } })
-                    }
-                    postAction()
-                    break;
-                default:
-                    break;
-            }
-        } catch (error) {
-            done('404', {
-                status: "LinkedIn data retrive failed",
-                message: error.message
-            });
-        }
-    } */
-
-
-
-
     switch (event.httpMethod) {
         case 'POST':
             console.log('POST Schedule tweet Called')
@@ -1758,7 +1501,7 @@ exports.handler = (event, context, callback) => {
                                     if (reqObj.socialMedia === 'twitter') {
                                         updateTwitterStatus(socialDoc, reqObj)
                                     } else if (reqObj.socialMedia === 'linkedin') {
-                                        console.log("socialDoc",JSON.stringify(socialDoc))
+                                        console.log("socialDoc", JSON.stringify(socialDoc))
                                         updateLinkedinStatus(socialDoc, reqObj);
                                     } else if (reqObj.socialMedia === 'youtube') {
                                         updateYoutubeStatus(socialDoc, reqObj);

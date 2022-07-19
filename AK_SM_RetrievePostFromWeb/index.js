@@ -32,24 +32,6 @@ exports.handler = (event, context, callback) => {
     var googleClientSecret = event.stageVariables['Google_ClientSecret'];
     var googleRedirctUrl = event.stageVariables['Manage_ProfilePage'];
 
-    /*const retrieveFacebook = (savedDoc, email, postId, socialDoc, queryConst) => {
-
-        axios.get('https://graph.facebook.com/' + postId + '?access_token=' + socialDoc.pageToken + '&fields=message,likes.summary(true),created_time,comments,attachments').then((convRes) => {
-            console.log(convRes.data)
-            done('200', {
-                status: "Facebook Post Retrieved",
-                data: {
-                    postStatus: savedDoc.postData.postStatus,
-                    postData: savedDoc.postData.postData,
-                    postInfo: savedDoc.postData[queryConst],
-                    public_metrics: { likes: convRes.data.likes.summary.total_count },
-                    conversations: convRes.data.comments,
-                    attachments: convRes.data.attachments
-                }
-            });
-        });
-
-    }*/
     const retrieveFacebook = async (postId, userId, socialDoc) => {
 
         try {
@@ -59,7 +41,7 @@ exports.handler = (event, context, callback) => {
                 addQueryParams = ",likes.summary(true)"
             }
             //let convRes = await axios.get('https://graph.facebook.com/v12.0/' + postId + '?access_token=' + socialDoc.pageToken + `&fields=message,targeting,created_time,comments{id,name,from{name,id,picture},created_time,comments{id,name,from{name,id,picture},created_time,message},to{id},message},attachments,from,to,parent_id,story,place,actions${addQueryParams}`);
-            let convRes = await axios.get('https://graph.facebook.com/v12.0/' + postId + '?access_token=' + socialDoc.pageToken + `&fields=message,targeting,created_time,comments{id,name,like_count,comment_count,attachment,from{name,id,picture},created_time,comments{id,name,like_count,comment_count,attachment,from{name,id,picture},created_time,message},to{id},message},attachments,from,to,parent_id,story,place,actions${addQueryParams}`);
+            let convRes = await axios.get('https://graph.facebook.com/v14.0/' + postId + '?access_token=' + socialDoc.pageToken + `&fields=message,targeting,created_time,comments{id,name,like_count,comment_count,attachment,from{name,id,picture},created_time,comments{id,name,like_count,comment_count,attachment,from{name,id,picture},created_time,message},to{id},message},attachments,from,to,parent_id,story,place,actions${addQueryParams}`);
             if (convRes.data) {
                 let postInfo = {};
                 let fbText = convRes.data.message || "";
@@ -119,33 +101,6 @@ exports.handler = (event, context, callback) => {
                     }
                 }
 
-                /*  if (convRes.data.attachments && convRes.data.attachments.data && convRes.data.attachments.data[0]
-                      && convRes.data.attachments.data[0].subattachments && convRes.data.attachments.data[0].subattachments.data && convRes.data.attachments.data[0].subattachments.data.length > 0) {
-                      postInfo["mediaUrl"] = convRes.data.attachments.data[0].subattachments.data.flatMap(mediaData => {
-                          if (mediaData.media && mediaData.media.image && mediaData.media.image.src && mediaData.type == "photo") {
-                              return mediaData.media.image.src
-                          } else {
-                              return []
-                          }
-                      })
-                  } else if (convRes.data.attachments && convRes.data.attachments.data && convRes.data.attachments.data[0] && !convRes.data.attachments.data[0].subattachments) {
-                      postInfo["mediaUrl"] = convRes.data.attachments.data.flatMap(mediaData => {
-                          if (mediaData.media && mediaData.media.image && mediaData.media.image.src && (mediaData.type == "share" || mediaData.type == "link")) {
-                              let linkObject = {};
-                              linkObject.description =  mediaData.description ? mediaData.description : '';                           
-                              linkObject.imageUrl = mediaData.media.image.src ? mediaData.media.image.src : '';
-                              linkObject.title = mediaData.title ? mediaData.title : '';
-                              linkObject.targetUrl = mediaData.target.url ? mediaData.target.url : mediaData.target.url ? mediaData.target.url : '';
-                              postInfo["linkObj"].push(linkObject)
-                          }
-                          if (mediaData.media && mediaData.media.image && mediaData.media.image.src && mediaData.type == "photo") {
-                              return mediaData.media.image.src
-                          } else {
-                              return []
-                          }
-                          
-                      })
-                  }*/
                 if (convRes.data.attachments && convRes.data.attachments.data && convRes.data.attachments.data[0] &&
                     convRes.data.attachments.data[0].subattachments && convRes.data.attachments.data[0].subattachments.data && convRes.data.attachments.data[0].subattachments.data.length > 0) {
                     postInfo["mediaUrl"] = convRes.data.attachments.data[0].subattachments.data.flatMap(mediaData => {
@@ -160,7 +115,6 @@ exports.handler = (event, context, callback) => {
                     })
                 }
                 else if (convRes.data.attachments && convRes.data.attachments.data && convRes.data.attachments.data[0] && !convRes.data.attachments.data[0].subattachments) {
-                    //fbObj["mediaUrl"] = fbResp.attachments.data.flatMap(mediaData => {
                     convRes.data.attachments.data.flatMap(mediaData => {
                         if (mediaData?.media?.image?.src && (mediaData.type == "share" || mediaData.type == "link")) {
                             postInfo['mediaType'] = "link";
@@ -190,9 +144,6 @@ exports.handler = (event, context, callback) => {
                             postInfo["thumbnail"] = mediaData.media.image.src;
                             postInfo["mediaUrl"] = [mediaData.media.source]
                         }
-                        /* else {
-                          return []
-                        } */
                     })
                 }
                 let public_metrics = {}
@@ -218,6 +169,11 @@ exports.handler = (event, context, callback) => {
                         }
 
                         comment.mediaUrl = comment?.attachment?.media?.image?.src ?? undefined;
+                        comment.mediaType = comment?.attachment?.media?.image?.src ? 'image' : "text";
+                        if(comment?.attachment?.type && comment.attachment.type == "animated_image_share"){
+                            comment.mediaUrl = comment.attachment.url;
+                            comment.mediaType = "gif";
+                        }
                         comment.likes = comment.like_count || 0;
                         comment.comments = comment.comment_count || 0;
                         delete comment.like_count;
@@ -289,297 +245,8 @@ exports.handler = (event, context, callback) => {
             });
         }
     }
-    /*    //const retrieveLinkedIn =async (savedDoc, email, postId, socialDoc, queryConst) => {
-      
-         const retrieveLinkedIn = async (socialDoc, userId, postId) => {
 
-            axios.get('https://api.linkedin.com/v2/ugcPosts/' + postId + '?viewContext=AUTHOR',
-                { headers: { 'Authorization': 'Bearer ' + socialDoc.socialMedia[0].oauth_token } }).then((res) => {
-                    done('200', {
-                        status: "LinkedIn Post Retrieved",
-                        data: {
-                            postStatus: savedDoc.postData.postStatus,
-                            postData: savedDoc.postData.postData,
-                            postInfo: savedDoc.postData[queryConst],
-                            linkedinData: res.data
-                        }
-                    });
-                });
-
-            try {
-
-                let shareData = async () => {
-                    return new Promise(async (resolve, reject) => {
-                        console.log("shareData........")
-                        //axios.get('https://api.linkedin.com/v2/shares/' + postId, { headers: { 'Authorization': 'Bearer ' + socialDoc.socialMedia[0].oauth_token } }).then((resp) => {
-                        //axios.get('https://api.linkedin.com/v2/ugcPosts/' + postId, { headers: { 'Authorization': 'Bearer ' + socialDoc.socialMedia[0].oauth_token } }).then((resp) => {
-                        let url = 'https://api.linkedin.com/v2/ugcPosts/' + postId + '?viewContext=AUTHOR&projection=(name,localizedName,author,id,created,specificContent(com.linkedin.ugc.ShareContent(shareMediaCategory,shareCommentary,media(*(media~:playableStreams,originalUrl,thumbnails,description,title)))))';
-                        console.log("url......", url)
-                        axios.get(url, { headers: { 'Authorization': 'Bearer ' + socialDoc.socialMedia[0].oauth_token } }).then((resp) => {
-
-                            //console.log("shareData", JSON.stringify(resp.data))
-                            if (resp.data) {
-                                resolve({ shareData: resp.data })
-                            } else {
-                                resolve({ shareData: {} })
-                            }
-                        }).catch(err => {
-                            console.log("err111  ,,,",JSON.stringify(err))
-                            console.log("share errror")
-                            resolve({ shareData: {} })
-                        })
-                    })
-                }
-
-                let socialActionData = async () => {
-                    return new Promise(async (resolve, reject) => {
-                        console.log("socialActionData........")
-                        axios.get('https://api.linkedin.com/v2/socialActions/' + postId, { headers: { 'Authorization': 'Bearer ' + socialDoc.socialMedia[0].oauth_token } }).then((resp) => {
-                            if (resp.data) {
-                                resolve({ socialActionData: resp.data })
-                            } else {
-                                resolve({ socialActionData: {} })
-                            }
-                        }).catch(err => {
-                            console.log("err",JSON.stringify(err))
-                            resolve({ socialActionData: {} })
-                        })
-                    })
-                }
-
-                let linkedinComments = async () => {
-                    return new Promise(async (resolve, reject) => {
-                        let responseArr = []
-                        console.log("cmt........")
-                        try {
-                            let commentsData = await axios.get("https://api.linkedin.com/v2/socialActions/" + postId + "/comments?projection=(elements(*(*,actor~(*,profilePicture(displayImage~digitalmediaAsset:playableStreams,logoV2(original~digitalmediaAsset:playableStreams))))))", { headers: { 'Authorization': 'Bearer ' + socialDoc.socialMedia[0].oauth_token } })
-                            //console.log("commentsData.data.elements", JSON.stringify(commentsData.data.elements))
-                            if (commentsData.data && commentsData.data.elements && commentsData.data.elements.length > 0) {
-
-                                for await (const comData of commentsData.data.elements) {
-                                    let resObj = {}
-                                    resObj.replied = {}
-                                    //console.log("comData.created.actor", comData.created.actor)
-                                    //console.log("socialDoc.socialMedia[0].linkedinPages", JSON.stringify(socialDoc.socialMedia[0].linkedinPages))
-                                     let filterdata = socialDoc.socialMedia[0].linkedinPages.filter(profile => {
-                                        return comData.created.actor == profile.pageId
-                                    })
-                                    if (filterdata.length == 0) {
-                                        resObj.replied.profileImage = comData['actor~'].profilePicture['displayImage~'].elements[0].identifiers[0].identifier;
-                                    } else {
-                                        resObj.replied.profileImage = socialDoc.socialMedia[0].linkedinPages[0].pageImage;
-                                    }
-                                    resObj.postDate = comData.created.time;
-                                    resObj.message = comData.message.text;
-                                    resObj.commentUrn = comData.$URN;
-                                    resObj.commentId = comData.id;
-
-                                    //resObj.pageId = userId;
-                                    resObj.activity = comData.object;
-                                    resObj.like_count = 0;
-                                    resObj.reply_count = 0;
-                                    resObj.replied.name = comData['actor~'].vanityName;
-                                    resObj.likedByCurrentUser = false
-                                    resObj["mediaUrl"] = "";
-                                    if (comData['actor~'].vanityName.includes("-")) {
-                                        var textIndex = comData['actor~'].vanityName.lastIndexOf("-");
-                                        resObj.replied.name = comData['actor~'].vanityName.substring(0, textIndex);
-                                    }
-                                    if (comData.content && comData.content[0]) {
-                                        if (comData.content[0].type == 'IMAGE') {
-                                            resObj["mediaUrl"] = comData.content[0].url;
-                                        }
-                                    }
-                                    if (comData.likesSummary && comData.likesSummary.aggregatedTotalLikes) {
-                                        resObj.like_count = comData.likesSummary.aggregatedTotalLikes;
-                                    }
-                                    if (comData.likesSummary && comData.likesSummary.selectedLikes && comData.likesSummary.selectedLikes.length > 0) {
-                                        comData.likesSummary.selectedLikes.map(likeData => {
-                                            var companyId = comData.actor.split(':').pop()
-                                            if (likeData.includes(companyId)) {
-                                                resObj.likedByCurrentUser = true;
-                                                return
-                                            }
-                                        })
-                                    }
-                                    if (comData.commentsSummary && comData.commentsSummary.aggregatedTotalComments) {
-                                        resObj.reply_count = comData.commentsSummary.aggregatedTotalComments;
-                                    }
-                                    let commThread = []
-                                    let commentsThread = await axios.get("https://api.linkedin.com/v2/socialActions/" + comData.$URN + "/comments?projection=(elements(*(*,actor~(*,profilePicture(displayImage~:playableStreams)))))", { headers: { 'Authorization': 'Bearer ' + socialDoc.socialMedia[0].oauth_token } })
-
-                                    if (commentsThread.data && commentsThread.data.elements && commentsThread.data.elements.length > 0) {
-                                        commentsThread.data.elements.forEach(threadData => {
-                                            let threadObj = {}
-                                            threadObj.replied = {}
-                                            let pageData = socialDoc.socialMedia[0].linkedinPages.filter(thread => {
-                                                return comData.actor == thread.pageId
-                                            })
-                                            if (pageData.length == 0) {
-                                                threadObj.replied.profileImage = comData['actor~'].profilePicture['displayImage~'].elements[0].identifiers[0].identifier;
-                                            } else {
-                                                threadObj.replied.profileImage = pageData[0].pageImage;
-                                            }
-                                            threadObj.postDate = threadData.created.time;
-                                            threadObj.message = threadData.message.text;
-                                            threadObj.commentUrn = threadData.$URN;
-                                            threadObj.commentId = threadData.id;
-                                            threadObj.activity = threadData.object;
-                                            //threadObj.pageId = userId;
-                                            threadObj.like_count = 0;
-                                            threadObj.reply_count = 0;
-                                            threadObj.replied.name = comData['actor~'].vanityName;
-                                            if (comData['actor~'].vanityName.includes("-")) {
-                                                var textIndex = comData['actor~'].vanityName.lastIndexOf("-");
-                                                threadObj.replied.name = comData['actor~'].vanityName.substring(0, textIndex);
-                                            }
-                                            threadObj.likedByCurrentUser = false;
-                                            threadObj["mediaUrl"] = "";
-                                            if (threadData.content && threadData.content[0]) {
-                                                if (threadData.content[0].type == 'IMAGE') {
-                                                    threadObj["mediaUrl"] = threadData.content[0].url;
-                                                }
-                                            }
-                                            if (threadData.likesSummary && threadData.likesSummary.aggregatedTotalLikes) {
-                                                threadObj.like_count = threadData.likesSummary.aggregatedTotalLikes;
-                                            }
-                                            if (threadData.likesSummary && threadData.likesSummary.selectedLikes && threadData.likesSummary.selectedLikes.length > 0) {
-                                                threadData.likesSummary.selectedLikes.map(likeData => {
-                                                    var companyId = threadData.actor.split(':').pop()
-                                                    if (likeData.includes(companyId)) {
-                                                        threadObj.likedByCurrentUser = true;
-                                                        return
-                                                    }
-                                                })
-                                            }
-                                            if (threadData.commentsSummary && threadData.commentsSummary.aggregatedTotalComments) {
-                                                threadObj.reply_count = threadData.commentsSummary.aggregatedTotalComments;
-                                            }
-                                            commThread.push(threadObj)
-                                        });
-                                        resObj.commentsThread = commThread;
-                                    }
-                                    responseArr.push(resObj)
-                                }
-                            }
-                            resolve({ comments: responseArr })
-
-                        } catch (error) {
-                            console.log("error",JSON.stringify(error))
-                            resolve({ comments: responseArr })
-                        }
-                    })
-                }
-
-                let promiseArray = [];
-
-                promiseArray.push(shareData());
-                promiseArray.push(socialActionData());
-                promiseArray.push(linkedinComments());
-
-                Promise.all(promiseArray).then(resArr => {
-                      console.log("linkedin ress", JSON.stringify(resArr))
-
-
-                    let postInfo = {};
-                    postInfo.mediaUrl = []
-                    postInfo.userId = userId;
-                    postInfo.postStatus = "Success";
-                    postInfo.postId = postId;
-                    postInfo["linkObj"] = [];
-
-                    let postData = "";
-                    let likedByCurrentUser = false;
-                    let comments = [];
-                    let public_metrics = {};
-
-                    resArr.forEach(finalRes => {
-
-                        if (finalRes.shareData) {
-                            postData = finalRes.shareData?.specificContent?.['com.linkedin.ugc.ShareContent']?.shareCommentary.text;
-                            postInfo.postDate = finalRes.shareData.created.time;
-                            postInfo.activity = finalRes.shareData.activity;
-                            postInfo.pageId = finalRes.shareData.author;
-
-                            if (finalRes.shareData.specificContent?.['com.linkedin.ugc.ShareContent']?.shareMediaCategory.length > 0) {
-                                if (finalRes.shareData.specificContent?.['com.linkedin.ugc.ShareContent']?.shareMediaCategory != 'ARTICLE') {
-                                    postInfo["mediaUrl"] = finalRes.shareData.specificContent?.['com.linkedin.ugc.ShareContent'].media.map(mediaData => {
-                                        return mediaData.originalUrl
-                                    })
-                                }
-                                if (finalRes.shareData.specificContent?.['com.linkedin.ugc.ShareContent']?.shareMediaCategory == 'VIDEO') {
-                                    console.log("video......................")
-                                    finalRes.shareData.specificContent?.['com.linkedin.ugc.ShareContent']?.media[0]?.['media~']?.elements?.map(video => {
-                                        if (video?.identifiers[0]?.mediaType == 'video/mp4') {
-                                            if (video?.identifiers[0]?.identifier?.includes('-720p')) {
-                                                postInfo["mediaUrl"] = [video?.identifiers[0]?.identifier]
-                                            }
-                                        }
-                                    });
-                                }
-                                if (finalRes.shareData.specificContent?.['com.linkedin.ugc.ShareContent']?.shareMediaCategory == 'ARTICLE') {
-                                    finalRes.shareData.specificContent?.['com.linkedin.ugc.ShareContent']?.media.map(mediaData => {
-                                        let linkObject = {};
-                                        linkObject.description = mediaData.description.text;
-                                        if (mediaData.thumbnails && mediaData.thumbnails[0] && mediaData.thumbnails[0].url) {
-                                            linkObject.imageUrl = mediaData.thumbnails[0].url;
-                                        }
-                                        linkObject.title = mediaData.title.text;
-                                        linkObject.targetUrl = mediaData.originalUrl;
-                                        postInfo["linkObj"].push(linkObject)
-                                        return mediaData.entityLocation
-                                    })
-                                }
-                            }
-                        }
-
-                        if (finalRes.socialActionData) {
-                            public_metrics.like_count = finalRes?.socialActionData?.likesSummary?.totalLikes ?? 0;
-                            public_metrics.reply_count = finalRes?.socialActionData?.commentsSummary?.aggregatedTotalComments ?? 0;
-                            likedByCurrentUser = finalRes?.socialActionData?.likesSummary?.likedByCurrentUser ?? false;
-
-                        }
-
-                        if (finalRes.comments) {
-                            comments = finalRes.comments;
-                        }
-                    });
-
-                    done('200', {
-                        status: "LinkedIn Post Retrieved",
-                        data: {
-                            postStatus: "Posted",
-                            postData: postData,
-                            postInfo: postInfo,
-                            public_metrics: public_metrics,
-                            "likedByCurrentUser": likedByCurrentUser,
-                            //linkedinData: merged,
-                            conversations: comments
-                        }
-                    });
-                })
-
-            } catch (error) {
-                done('401', {
-                    status: "LinkedIn data retrive failed",
-                    message: error.message
-                });
-            }
-        }*/
     const retrieveLinkedIn = async (socialDoc, userId, postId) => {
-
-        /*axios.get('https://api.linkedin.com/v2/ugcPosts/' + postId + '?viewContext=AUTHOR',
-            { headers: { 'Authorization': 'Bearer ' + socialDoc.socialMedia[0].oauth_token } }).then((res) => {
-                done('200', {
-                    status: "LinkedIn Post Retrieved",
-                    data: {
-                        postStatus: savedDoc.postData.postStatus,
-                        postData: savedDoc.postData.postData,
-                        postInfo: savedDoc.postData[queryConst],
-                        linkedinData: res.data
-                    }
-                });
-            });*/
 
         try {
 
