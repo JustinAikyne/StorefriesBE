@@ -149,7 +149,7 @@ Resources:
   Member:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: "Dev_AK_UM_Member"
+      FunctionName: "Dev_AK_UM_AddMember"
       Timeout: 30
       MemorySize: 10240
       CodeUri: AK_UM_Member
