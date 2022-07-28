@@ -26,7 +26,7 @@ Resources:
           Type: HttpApi
           Properties:
             ApiId: !Ref HttpApi
-            Method: POST
+            Method: GET
             Path: /hello
             TimeoutInMillis: 15000
             PayloadFormatVersion: "1.0"
@@ -544,7 +544,7 @@ Resources:
       DefaultRouteSettings:
         ThrottlingBurstLimit: 200
       RouteSettings:
-        "POST /hello":
+        "GET /hello":
           ThrottlingBurstLimit: 500 # overridden in HttpApi Event
       StageVariables:
         mongoDB: "StorefriesQA1:vfRPJcXLcQyWEt2r@storefriesqa1.qpgagus.mongodb.net/Storefriesqa1"
