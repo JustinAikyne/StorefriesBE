@@ -26,7 +26,7 @@ Resources:
           Type: HttpApi
           Properties:
             ApiId: !Ref HttpApi
-            Method: GET
+            Method: POST
             Path: /hello
             TimeoutInMillis: 15000
             PayloadFormatVersion: "1.0"
@@ -146,6 +146,26 @@ Resources:
             Path: /workspace/delete/{workspaceId}
             TimeoutInMillis: 15000
             PayloadFormatVersion: "1.0"
+  Analytics:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: "Dev_AK_SM_Analytics"
+      Timeout: 50
+      MemorySize: 10240
+      CodeUri: AK_SM_Analytics
+      Handler: index.handler
+      Runtime: nodejs14.x
+      Events:
+        ExplicitApi: # warning: creates a public endpoint
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Auth:
+              Authorizer: "NONE"
+            Method: "POST"
+            Path: /manageSM/analytics
+            TimeoutInMillis: 15000
+            PayloadFormatVersion: "1.0"            
   Member:
     Type: AWS::Serverless::Function
     Properties:
@@ -293,6 +313,106 @@ Resources:
             Path: /cityTrends
             TimeoutInMillis: 15000
             PayloadFormatVersion: "1.0"
+  ContentManagement:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: "Dev_AK_CM_ContentManagement"
+      Timeout: 40
+      MemorySize: 10240
+      CodeUri: AK_CM_ContentManagement/
+      Handler: index.handler
+      Runtime: nodejs14.x
+      Policies:
+        - AmazonS3FullAccess
+      Events:
+        ExplicitApi: # warning: creates a public endpoint
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Method: "GET"
+            Path: /cm/uploadMedia
+            TimeoutInMillis: 15000
+            PayloadFormatVersion: "1.0"
+  DeleteMedia:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: "Dev_AK_CM_DeleteMedia"
+      Timeout: 30
+      MemorySize: 10240
+      CodeUri: AK_CM_DeleteMedia/
+      Handler: index.handler
+      Runtime: nodejs14.x
+      Policies:
+        - AmazonS3FullAccess
+      Events:
+        ExplicitApi: # warning: creates a public endpoint
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Method: "POST"
+            Path: /cm/removeMedia
+            TimeoutInMillis: 15000
+            PayloadFormatVersion: "1.0"              
+  ListMedia:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: "Dev_AK_CM_ListMedia"
+      Timeout: 30
+      MemorySize: 10240
+      CodeUri: AK_CM_ListMedia/
+      Handler: index.handler
+      Runtime: nodejs14.x
+      Policies:
+        - AmazonS3FullAccess
+      Events:
+        ExplicitApi: # warning: creates a public endpoint
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Method: "GET"
+            Path: /cm/retrieveMediaList
+            TimeoutInMillis: 15000
+            PayloadFormatVersion: "1.0"              
+  MoveMedia:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: "Dev_AK_CM_MoveMedia"
+      Timeout: 30
+      MemorySize: 10240
+      CodeUri: AK_CM_MoveMedia/
+      Handler: index.handler
+      Runtime: nodejs14.x
+      Policies:
+        - AmazonS3FullAccess
+      Events:
+        ExplicitApi: # warning: creates a public endpoint
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Method: "POST"
+            Path: /cm/drag-media
+            TimeoutInMillis: 15000
+            PayloadFormatVersion: "1.0"              
+  UploadFolder:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: "Dev_AK_CM_UploadFolder"
+      Timeout: 30
+      MemorySize: 10240
+      CodeUri: AK_CM_UploadFolder/
+      Handler: index.handler
+      Runtime: nodejs14.x
+      Policies:
+        - AmazonS3FullAccess
+      Events:
+        ExplicitApi: # warning: creates a public endpoint
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Method: "POST"
+            Path: /cm/createFolder
+            TimeoutInMillis: 15000
+            PayloadFormatVersion: "1.0"                        
   RetrieveAllSocialPost:
     Type: AWS::Serverless::Function
     Properties:
@@ -319,6 +439,9 @@ Resources:
       MemorySize: 10240
       CodeUri: AK_SM_RetrievePostFromWeb/
       Handler: index.handler
+      Environment:
+        Variables:
+          twitter_token: "AAAAAAAAAAAAAAAAAAAAABJRMAEAAAAAZCgIiNjUIBEmshoYJVkZsYV6Nc0%3DJtWFMmKy7Bz0CqFZI0xU9reKrJqYuHzpxW0fNgf9ptWDEskYRH"
       Runtime: nodejs14.x
       Events:
         ExplicitApi: # warning: creates a public endpoint
@@ -347,6 +470,15 @@ Resources:
             Path: /manageSM/socialMediaStatusUpdate
             TimeoutInMillis: 15000
             PayloadFormatVersion: "1.0"
+  LambdaAuth:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: "LambdaAuth"
+      Timeout: 30
+      MemorySize: 10240
+      CodeUri: LambdaAuth/
+      Handler: index.handler
+      Runtime: nodejs14.x            
   ActivateUser:
     Type: AWS::Serverless::Function
     Properties:
@@ -383,35 +515,46 @@ Resources:
           - "*"
         ExposeHeaders:
           - "*"
-        MaxAge: 600
+        MaxAge: 0
         AllowCredentials: true
       Tags:
         Tag: Value
       AccessLogSettings:
         DestinationArn: !GetAtt AccessLogs.Arn
         Format: $context.requestId
+      # Auth:
+      #   Authorizers:
+      #     AK_Auth:
+      #       JwtConfiguration:
+      #         issuer: "https://aikyne1.eu.auth0.com/"
+      #         audience:
+      #           - https://storefriestest-jwt-authorizer
+      #       IdentitySource: "$request.header.Authorization"
+      #   DefaultAuthorizer: AK_Auth
       Auth:
+        DefaultAuthorizer: MyLambdaTokenAuthorizer
         Authorizers:
-          AK_Auth:
-            JwtConfiguration:
-              issuer: "https://storefriesqa.us.auth0.com/"
-              audience:
-                - https://storefriesqa-jwt-authorizer
-            IdentitySource: "$request.header.Authorization"
-        DefaultAuthorizer: AK_Auth
+          MyLambdaTokenAuthorizer:
+            FunctionArn: !GetAtt LambdaAuth.Arn
+            FunctionInvokeRole: !GetAtt LambdaAuth.Arn
+            Identity:
+              Headers:
+                - Authorization
+            AuthorizerPayloadFormatVersion: 2.0
+            EnableSimpleResponses: true
       DefaultRouteSettings:
         ThrottlingBurstLimit: 200
       RouteSettings:
-        "GET /hello":
+        "POST /hello":
           ThrottlingBurstLimit: 500 # overridden in HttpApi Event
       StageVariables:
         mongoDB: "StorefriesQA1:vfRPJcXLcQyWEt2r@storefriesqa1.qpgagus.mongodb.net/Storefriesqa1"
         markettingMongoDB: "justin:cVMMTQazC5sAijai@socialmediacluster.yym8e.mongodb.net/marketting"
-        authTokenURL: "https://storefriesqa.us.auth0.com/oauth/token"
-        oauth_audience: "https://storefriesqa-jwt-authorizer"
-        oauth_issuer: "https://storefriesqa.us.auth0.com/"
-        oauth_clientId: "VSHQFdqXc33Ts9Z1VKYdJZUuzAwvuO6g"
-        oauth_clientSecret: "c5vxDExYm6QvZMAx_Wz7UejeaRiLqK53de8iDWPlf8ih5VsW5-9SnuLfenrRmkxa"
+        authTokenURL: "https://aikyne1.eu.auth0.com/oauth/token"
+        oauth_audience: "https://storefriestest-jwt-authorizer"
+        oauth_issuer: "https://aikyne1.eu.auth0.com/"
+        oauth_clientId: "rkGztdGvKDLDyFGyoWSXAEvuGDevwM5V"
+        oauth_clientSecret: "gx-kQWiJ4x8MAA8fq1hBL01UdiNSoJsnZavdOl0x_28via7KDpgSsrkjC-zXnnJL"
         TwitterCallBackURL: "https://test.storefries.com/dashboard/content/newpost/twitter"
         chargebee_api_key: "test_xM2e2ia5BpizgyKcqISEg9CJScWLwcucU"
         Hashtag_api_key: "4e1fb16e2bmsh33a34178ff076b3p1f2af1jsn91af61c7f652"

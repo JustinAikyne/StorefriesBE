@@ -473,7 +473,7 @@ exports.handler = (event, context, callback) => {
 											let userEmail = [];
 											for (let i = 0; i < workspace.users.length; i++) {
 												const user = workspace.users[i];
-												if (user.role === 'super_admin') {
+												if (user.email == body.email && user.role === 'super_admin') {
 													done('405', {
 														status: false,
 														message: "Super Admin role could not be change",
