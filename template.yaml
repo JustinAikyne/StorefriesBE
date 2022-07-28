@@ -516,7 +516,6 @@ Resources:
         ExposeHeaders:
           - "*"
         MaxAge: 0
-        AllowCredentials: true
       Tags:
         Tag: Value
       AccessLogSettings:
