@@ -51,69 +51,69 @@ exports.handler = (event, context, callback) => {
             return;
           }
 
-          connectorMongodb.then(() => {
-            //userModel.findOne(mdQuery, { 'firstName': 1, 'lastName': 1, 'email': 1, '_id': 1, 'features': 1 })
-
-            let workspaceQry = [];
-
-            console.log("event.queryStringParameters.workspaceId",event.queryStringParameters.workspaceId)
-
-            workspaceQry = [
-              { "$match": { _id: new ObjectId(event.queryStringParameters.workspaceId) } },
-              { "$project": { "_id": 1, "workspaceStatus": "$status", "superAdmin": 1, } },
-              {
-                "$lookup": {
-                  "from": "users", "let": { "superAdminEmail": "$superAdmin" },
-                  "pipeline": [
-                    { "$match": { $expr: { $and: [{ $eq: ["$$superAdminEmail", "$email"] }] } } },
-                    { "$project": { "features": "$features", "superAdminEmail": "$email" } }
-                  ], as: "superAdminDetails"
-                }
+          /* if(!event.requestContext.authorizer){
+            event.requestContext.authorizer = {
+              "claims": null,
+              "email": "justin.venis@yopmail.com",
+              "features": {
+                  "currentDraftPostCount": 0,
+                  "currentPostCount": 0,
+                  "currentRssFeedCount": 0,
+                  "currentSchedulePostCount": 0,
+                  "currentSocialChannel": 0,
+                  "currentUploadSize": 0,
+                  "is_CalendarViewAllowed": 0,
+                  "is_CanvaAllowed": 0,
+                  "is_DashboardViewAllowed": 0,
+                  "is_EngagementViewAllowed": 0,
+                  "is_UrlShortnerAllowed": 0,
+                  "totalDraftPostCount": 10,
+                  "totalPostCount": 30,
+                  "totalRssFeedCount": 5,
+                  "totalSchedulePostCount": 30,
+                  "totalSocialChannel": 3,
+                  "totalUploadSize": 100
               },
-              { "$unwind": { path: "$superAdminDetails", preserveNullAndEmptyArrays: true } },
-              { "$project": { "_id": 1, "superAdmin": "$superAdmin", "workspaceStatus": "$workspaceStatus", "features": "$superAdminDetails.features" } }
-            ];
+              "firstName": "Justin",
+              "lastName": "J",
+              "scopes": null,
+              "superAdmin": "justin.venis@yopmail.com",
+              "userId": "62c2b17ffbee5c000f267d34",
+              "userRole": "super_admin",
+              "workspaceId": "62c4316414b9e7ca532ef760",
+              "workspaceName": "iiiiiiiiiiiiiiii",
+              "workspaceStatus": "active"
+          }
+          } */
 
-            workspaceModel.aggregate(workspaceQry).exec(async (err, worspaceData) => {
-              console.log(worspaceData)
-              if (worspaceData?.[0]) {
-                let doc = worspaceData[0];
-                console.log("doc.........",JSON.stringify(doc));
-
-                
-                let filePrefix = (folderName !== '' ? `${doc._id}/${folderName}/` : `${doc._id}/`);
-
-                //if (folderName && folderName == 'clib' && doc.features.totalUploadSize && doc.features.totalUploadSize != null) {
-                if (folderName && folderName.includes('clib') && doc.features.totalUploadSize && doc.features.totalUploadSize != null) {
-                  filePrefix = `${doc._id}/clib/`
-                  let listSize = await getListingS3(filePrefix);
-                  if (listSize) {
-                    if (doc.features) {
-                      if (doc.features.totalUploadSize > parseFloat(listSize)) {
-                        getUploadURL(doc._id, ext, folderName, fileName)
-                      } else {
-                        done('405', {
-                          status: "You did not have enough storage for Upload."
-                        });
-                      }
-                    } else {
-                      done('405', {
-                        status: "You did not have Subscription Feature."
-                      });
-                    }
+          const authData = event.requestContext.authorizer;
+          connectorMongodb.then(async () => {
+            let filePrefix = (folderName !== '' ? `${authData.workspaceId}/${folderName}/` : `${authData.workspaceId}/`);
+            //if (folderName && folderName == 'clib' && doc.features.totalUploadSize && doc.features.totalUploadSize != null) {
+            if (folderName && folderName.includes('clib') && authData.features.totalUploadSize && authData.features.totalUploadSize != null) {
+              filePrefix = `${authData.workspaceId}/clib/`
+              let listSize = await getListingS3(filePrefix);
+              if (listSize) {
+                if (authData.features) {
+                  if (authData.features.totalUploadSize > parseFloat(listSize)) {
+                    getUploadURL(authData.workspaceId, ext, folderName, fileName)
                   } else {
-                    getUploadURL(doc._id, ext, folderName, fileName)
+                    done('405', {
+                      status: "You did not have enough storage for Upload."
+                    });
                   }
-
                 } else {
-                  getUploadURL(doc._id, ext, folderName, fileName)
+                  done('405', {
+                    status: "You did not have Subscription Feature."
+                  });
                 }
               } else {
-                done('400', {
-                  status: "User Profile not found"
-                });
+                getUploadURL(authData.workspaceId, ext, folderName, fileName)
               }
-            });
+
+            } else {
+              getUploadURL(authData.workspaceId, ext, folderName, fileName)
+            }
           },
             (err) => { console.log('Connection Error'); });
         } else {
