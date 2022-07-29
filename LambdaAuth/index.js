@@ -26,7 +26,7 @@ exports.handler = function (event, context, callback) {
 
     let token = extractTokenFromHeader(headers) || '';
     var decoded = jwt.decode(token, { complete: true });
-
+    
 
     // Help function to generate an IAM policy
     function generatePolicy(principalId, effect, resource, contextObj) {
@@ -56,17 +56,25 @@ exports.handler = function (event, context, callback) {
             message : "Deny for token expired.",
             messageString : "Deny for token expired."
         }*/
-
+        
         if (effect == 'Deny') {
-            var error = new Error("Validation error: the file is too big.")
+                var error = new Error("Validation error: the file is too big.")
             context.fail("Unauthorized");
             //context.fail(error);
             return;
 
-        } else {
+        }else{
             authResponse.context = contextObj;
         }
+        
 
+        //context.authorizer.error = "Deny for token expired.";
+        
+        console.log("context.authorizer",context)
+        console.log("$context.identity.sourceIp")
+        //console.log("context.authorizer",$context.authorizer)
+
+        //console.log("customErrorMessage", customErrorMessage)
         console.log(".............authResponse.............", JSON.stringify(authResponse));
 
         return authResponse;
@@ -120,7 +128,7 @@ exports.handler = function (event, context, callback) {
 
         const verificationOptions = {
             // verify claims, e.g.
-            // "audience": "urn:audience"
+            //"audience": "urn:audience",
             "algorithms": "RS256"
         }
 
@@ -159,6 +167,7 @@ exports.handler = function (event, context, callback) {
                 workspaceId = queryStringParameters?.workspaceId ?? pathParameters?.workspaceId;
 
                 if (path && path == 'POST') {
+                    console.log(".")
                     let body = JSON.parse(event.body);
                     workspaceId = body?.workspaceId;
                 }
@@ -182,6 +191,7 @@ exports.handler = function (event, context, callback) {
                         { "$project": { "_id": 1, "superAdmin": 1, "wsStatus": "$wsStatus", "wsName": "$wsName", "users": 1, "features": "$superAdminDetails.features" } }
                     ];
 
+
                     //promiseArray.push(workspaceModel.findOne({ '_id': workspaceId }));
                     promiseArray.push(workspaceModel.aggregate(workspaceQry));
                 }
@@ -202,8 +212,12 @@ exports.handler = function (event, context, callback) {
                         callback(null, generatePolicy("user", 'Deny', resource, null));
                     }
                     else if (authRes.length == 3) {
-                        console.log("authRes[2]", JSON.stringify(authRes[2]))
+                        console.log("authRes[2]",authRes[2])
+                            console.log("......................authRes?.[2]?.[0].........................",authRes?.[2]?.[0])
                         if (authRes?.[2]?.[0]) {
+                            
+                            console.log("...............................................")
+                            
                             let workspaceData = authRes[2][0];
                             let is_allow = false;
 
@@ -214,9 +228,8 @@ exports.handler = function (event, context, callback) {
                                 }
                             });
 
-                            
                             resObj.superAdmin = workspaceData.superAdmin;
-                            resObj.workspaceId = workspaceData._id;
+                            resObj.workspaceId =workspaceData._id;
                             resObj.workspaceName = workspaceData.wsName;
                             resObj.workspaceStatus = workspaceData.wsStatus;
                             resObj.features = workspaceData.features;

@@ -491,16 +491,16 @@ Resources:
       #       IdentitySource: "$request.header.Authorization"
       #   DefaultAuthorizer: AK_Auth
       Auth:
-        DefaultAuthorizer: MyLambdaTokenAuthorizer
         Authorizers:
           MyLambdaTokenAuthorizer:
             FunctionArn: !GetAtt LambdaAuth.Arn
-            FunctionInvokeRole: !GetAtt LambdaAuth.Arn
+            FunctionInvokeRole: !GetAtt LambdaAuthRole.Arn
             Identity:
               Headers:
                 - Authorization
             AuthorizerPayloadFormatVersion: 2.0
-            EnableSimpleResponses: true
+            EnableSimpleResponses: false
+        DefaultAuthorizer: MyLambdaTokenAuthorizer
       DefaultRouteSettings:
         ThrottlingBurstLimit: 200
       RouteSettings:
