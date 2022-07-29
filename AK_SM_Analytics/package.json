@@ -1,0 +1,21 @@
+{
+  "name": "ak_sm_analytics",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "async": "^3.2.1",
+    "axios": "^0.21.1",
+    "crypto": "^1.0.1",
+    "deepmerge": "^4.2.2",
+    "mongoose": "^5.7.12",
+    "oauth-1.0a": "^2.2.6",
+    "moment": "^2.29.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
