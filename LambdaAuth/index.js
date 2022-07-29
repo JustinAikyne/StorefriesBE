@@ -129,6 +129,8 @@ exports.handler = function (event, context, callback) {
         const verificationOptions = {
             // verify claims, e.g.
             //"audience": "urn:audience",
+            "audience": stageVariables['oauth_audience'],
+            "issuer": stageVariables['oauth_issuer'],
             "algorithms": "RS256"
         }
 
