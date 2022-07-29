@@ -473,7 +473,7 @@ Resources:
   LambdaAuth:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: "LambdaAuth"
+      FunctionName: "Dev_LambdaAuth"
       Timeout: 30
       MemorySize: 10240
       CodeUri: LambdaAuth/
