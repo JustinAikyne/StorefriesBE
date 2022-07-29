@@ -373,46 +373,6 @@ Resources:
             Path: /cm/retrieveMediaList
             TimeoutInMillis: 15000
             PayloadFormatVersion: "1.0"              
-  MoveMedia:
-    Type: AWS::Serverless::Function
-    Properties:
-      FunctionName: "Dev_AK_CM_MoveMedia"
-      Timeout: 30
-      MemorySize: 10240
-      CodeUri: AK_CM_MoveMedia/
-      Handler: index.handler
-      Runtime: nodejs14.x
-      Policies:
-        - AmazonS3FullAccess
-      Events:
-        ExplicitApi: # warning: creates a public endpoint
-          Type: HttpApi
-          Properties:
-            ApiId: !Ref HttpApi
-            Method: "POST"
-            Path: /cm/drag-media
-            TimeoutInMillis: 15000
-            PayloadFormatVersion: "1.0"              
-  UploadFolder:
-    Type: AWS::Serverless::Function
-    Properties:
-      FunctionName: "Dev_AK_CM_UploadFolder"
-      Timeout: 30
-      MemorySize: 10240
-      CodeUri: AK_CM_UploadFolder/
-      Handler: index.handler
-      Runtime: nodejs14.x
-      Policies:
-        - AmazonS3FullAccess
-      Events:
-        ExplicitApi: # warning: creates a public endpoint
-          Type: HttpApi
-          Properties:
-            ApiId: !Ref HttpApi
-            Method: "POST"
-            Path: /cm/createFolder
-            TimeoutInMillis: 15000
-            PayloadFormatVersion: "1.0"                        
   RetrieveAllSocialPost:
     Type: AWS::Serverless::Function
     Properties:
