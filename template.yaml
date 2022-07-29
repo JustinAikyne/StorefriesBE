@@ -494,7 +494,6 @@ Resources:
         Authorizers:
           MyLambdaTokenAuthorizer:
             FunctionArn: !GetAtt LambdaAuth.Arn
-            FunctionInvokeRole: !GetAtt LambdaAuthRole.Arn
             Identity:
               Headers:
                 - Authorization
